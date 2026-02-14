@@ -1,0 +1,36 @@
+{
+  "intro": "Please read these terms and conditions carefully before using our application. By accessing or using the service, you agree to be bound by these terms.",
+
+  "sections": [
+    {
+      "id": 1,
+      "title": "Acceptance of Terms",
+      "content": "By creating an account on this job search platform, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions. These terms apply to all visitors, users, and others who access or use the Service."
+    },
+    {
+      "id": 2,
+      "title": "User Responsibilities",
+      "content": "As a user, you are responsible for maintaining the confidentiality of your account and password. You agree to provide accurate, current, and complete information during the registration process.",
+      "bullets": [
+        "Users must not post fraudulent job listings or resumes.",
+        "Respect the privacy and data of other users.",
+        "Comply with all local and international employment laws."
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Privacy Policy",
+      "content": "Your privacy is important to us. Our Privacy Policy explains how we collect, use, and protect your personal information. By using our service, you consent to the data practices described in our Privacy Policy. We use your data primarily to match job seekers with potential employers and to improve the user experience."
+    },
+    {
+      "id": 4,
+      "title": "Intellectual Property",
+      "content": "The Service and its original content, features, and functionality are and will remain the exclusive property of the application and its licensors."
+    },
+    {
+      "id": 5,
+      "title": "Limitation of Liability",
+      "content": "In no event shall the platform, nor its directors, employees, or partners, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, or other intangible losses."
+    }
+  ]
+}
