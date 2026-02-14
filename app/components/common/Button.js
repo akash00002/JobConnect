@@ -37,6 +37,14 @@ export default function AuthButton({
       iconColor: "#ffffff",
       loaderColor: "#ffffff",
     },
+    ghost: {
+      bgColor: "transparent",
+      bgDisabled: "transparent",
+      textColor: colors.neutral500,
+      textDisabled: colors.neutral500,
+      iconColor: colors.brandPrimary,
+      loaderColor: colors.brandPrimary,
+    },
   };
 
   const current = variants[variant];

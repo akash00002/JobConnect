@@ -1,6 +1,7 @@
+import { Ionicons } from "@expo/vector-icons";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { TouchableOpacity } from "react-native";
 import Step1Screen from "../screens/onboarding/candidate/Step1Screen";
-import Step2Screen from "../screens/onboarding/candidate/Step2Screen";
 import { useAppTheme } from "../utils/theme";
 
 const Stack = createNativeStackNavigator();
@@ -10,40 +11,46 @@ export default function OnboardingStack() {
 
   return (
     <Stack.Navigator
-      screenOptions={{
+      screenOptions={({ navigation }) => ({
         headerTitleAlign: "center",
         headerBackTitleVisible: false,
-
         headerStyle: {
-          backgroundColor: colors.surface,
+          backgroundColor: colors.background, // Match background
         },
         headerTintColor: colors.brandPrimary,
         headerTitleStyle: {
           fontWeight: "600",
-          fontSize: 18,
+          fontSize: 20,
           color: colors.text,
         },
         contentStyle: {
           backgroundColor: colors.background,
         },
-        // ✅ Add these to fix the glitch
         cardStyle: {
           backgroundColor: colors.background,
         },
         presentation: "card",
+        headerShadowVisible: false, // ✅ Remove shadow/border
 
-        headerShadowVisible: true,
-      }}
+        // ✅ Custom back button
+        headerLeft: () => (
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            className="ml-2"
+            activeOpacity={0.7}
+          >
+            <Ionicons name="arrow-back" size={24} color={colors.brandPrimary} />
+          </TouchableOpacity>
+        ),
+      })}
     >
       <Stack.Screen
         name="Step1"
         component={Step1Screen}
-        options={{ title: "Complete Your Profile", headerBackTitle: "Back" }}
-      />
-      <Stack.Screen
-        name="Step2"
-        component={Step2Screen}
-        options={{ title: "Profile Setup", headerBackTitle: "Back" }}
+        options={{
+          title: "Complete Your Profile",
+          headerLeft: null, // ✅ Hide back button on first screen
+        }}
       />
     </Stack.Navigator>
   );

@@ -41,7 +41,7 @@ export default function AuthFormContainer({
 }) {
   const { colors } = useAppTheme();
   return (
-    <View className="flex-1">
+    <View className="flex-1" style={{ backgroundColor: colors.background }}>
       {/* Decorative Background Blurs */}
       {decorativeBlurs && decorativeBlurVariants[decorativeBlurs]}
 

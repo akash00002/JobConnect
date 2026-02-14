@@ -46,7 +46,7 @@ export default function TermsModal({
         setModalVisible(false);
       });
     }
-  }, [visible]);
+  }, [visible, slideAnim]);
 
   const handleScroll = ({ nativeEvent }) => {
     const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
