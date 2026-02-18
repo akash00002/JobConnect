@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { supabase } from "../services/api";
 import { authService } from "../services/authService";
 
 const AuthContext = createContext();
@@ -9,43 +8,27 @@ export default function AuthProvider({ children }) {
   const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isNewUser, setIsNewUser] = useState(false);
 
+  // Check authentication on app load
   useEffect(() => {
-    checkInitialSession();
-
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (session?.user) {
-          setUser(session.user);
-          setIsAuthenticated(true);
-          const role = await authService.getUserRole();
-          setUserRole(role);
-        } else {
-          setUser(null);
-          setUserRole(null);
-          setIsAuthenticated(false);
-          setIsNewUser(false);
-        }
-        setLoading(false);
-      },
-    );
-
-    return () => {
-      listener.subscription.unsubscribe();
-    };
+    checkAuth();
   }, []);
 
-  async function checkInitialSession() {
-    const { data } = await supabase.auth.getSession();
-    if (data.session?.user) {
-      setUser(data.session.user);
-      setIsAuthenticated(true);
-      setIsNewUser(false); // existing session = not new user
-      const role = await authService.getUserRole();
-      setUserRole(role);
+  async function checkAuth() {
+    try {
+      const authenticated = await authService.isAuthenticated();
+      setIsAuthenticated(authenticated);
+      if (authenticated) {
+        const userData = await authService.getCurrentUser();
+        const role = await authService.getUserRole();
+        setUser(userData);
+        setUserRole(role);
+      }
+    } catch (error) {
+      console.error("Auth check error: ", error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   // Candidate Login
@@ -55,19 +38,17 @@ export default function AuthProvider({ children }) {
       setUser(result.data.user);
       setUserRole("candidate");
       setIsAuthenticated(true);
-      setIsNewUser(false); // login = go to Home
     }
     return result;
   }
 
-  // Candidate Signup
+  // Candidate SignUp
   async function candidateSignUp(userData) {
     const result = await authService.candidateSignUp(userData);
     if (result.success) {
       setUser(result.data.user);
       setUserRole("candidate");
       setIsAuthenticated(true);
-      setIsNewUser(true); // signup = go to Onboarding
     }
     return result;
   }
@@ -79,19 +60,17 @@ export default function AuthProvider({ children }) {
       setUser(result.data.user);
       setUserRole("recruiter");
       setIsAuthenticated(true);
-      setIsNewUser(false); // login = go to Home
     }
     return result;
   }
 
-  // Recruiter Signup
+  // Recruiter SignUp
   async function recruiterSignUp(userData) {
     const result = await authService.recruiterSignUp(userData);
     if (result.success) {
       setUser(result.data.user);
       setUserRole("recruiter");
       setIsAuthenticated(true);
-      setIsNewUser(true); // signup = go to Onboarding
     }
     return result;
   }
@@ -101,11 +80,6 @@ export default function AuthProvider({ children }) {
     setUser(null);
     setUserRole(null);
     setIsAuthenticated(false);
-    setIsNewUser(false);
-  }
-
-  function completeOnboarding() {
-    setIsNewUser(false);
   }
 
   return (
@@ -114,14 +88,12 @@ export default function AuthProvider({ children }) {
         user,
         userRole,
         isAuthenticated,
-        isNewUser,
         loading,
         candidateLogin,
         candidateSignUp,
         recruiterLogin,
         recruiterSignUp,
         logout,
-        completeOnboarding,
       }}
     >
       {children}

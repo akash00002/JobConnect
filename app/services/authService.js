@@ -1,99 +1,142 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import api from "./api";
+import { supabase } from "./api"; // your new supabase client
 
-const saveAuthData = async (token, user, role) => {
-  await AsyncStorage.multiSet([
-    ["authToken", token],
-    ["userData", JSON.stringify(user)],
-    ["userRole", role], // Add userRole
-  ]);
+const saveUserRole = async (role) => {
+  await AsyncStorage.setItem("userRole", role);
 };
 
 export const authService = {
+  // ✅ Candidate Login
   candidateLogin: async (email, password) => {
-    try {
-      const response = await api.post("/auth/candidateLogin", {
-        email,
-        password,
-      });
-      const { token, user } = response.data;
-      await saveAuthData(token, user, "candidate"); // Pass role
-      return { success: true, data: { token, user } };
-    } catch (error) {
-      return {
-        success: false,
-        error:
-          error.response?.data?.message || "Login failed. Please try again.",
-      };
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      return { success: false, error: error.message };
     }
+
+    await saveUserRole("candidate");
+
+    return {
+      success: true,
+      data: {
+        user: data.user,
+        session: data.session,
+      },
+    };
   },
 
+  // ✅ Candidate Signup
   candidateSignUp: async (userData) => {
-    try {
-      const response = await api.post("/auth/candidateSignUp", userData);
-      const { token, user } = response.data;
-      await saveAuthData(token, user, "candidate"); // Pass role
-      return { success: true, data: { token, user } };
-    } catch (error) {
-      return {
-        success: false,
-        error:
-          error.response?.data?.message || "Sign Up failed. Please try again.",
-      };
+    const { email, password, ...profileData } = userData;
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (error) {
+      return { success: false, error: error.message };
     }
+
+    // Optional: insert extra profile data into "profiles" table
+    if (data.user) {
+      await supabase.from("profiles").insert([
+        {
+          id: data.user.id,
+          role: "candidate",
+          ...profileData,
+        },
+      ]);
+    }
+
+    await saveUserRole("candidate");
+
+    return {
+      success: true,
+      data: {
+        user: data.user,
+      },
+    };
   },
 
+  // ✅ Recruiter Login
   recruiterLogin: async (email, password) => {
-    try {
-      const response = await api.post("/auth/recruiterLogin", {
-        email,
-        password,
-      });
-      const { token, user } = response.data;
-      await saveAuthData(token, user, "recruiter"); // Pass role
-      return { success: true, data: { token, user } };
-    } catch (error) {
-      return {
-        success: false,
-        error:
-          error.response?.data?.message || "Login failed. Please try again.",
-      };
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      return { success: false, error: error.message };
     }
+
+    await saveUserRole("recruiter");
+
+    return {
+      success: true,
+      data: {
+        user: data.user,
+        session: data.session,
+      },
+    };
   },
 
+  // ✅ Recruiter Signup
   recruiterSignUp: async (userData) => {
-    try {
-      const response = await api.post("/auth/recruiterSignUp", userData);
-      const { token, user } = response.data;
-      await saveAuthData(token, user, "recruiter"); // Pass role
-      return { success: true, data: { token, user } };
-    } catch (error) {
-      return {
-        success: false,
-        error:
-          error.response?.data?.message || "Sign Up failed. Please try again.",
-      };
+    const { email, password, ...profileData } = userData;
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (error) {
+      return { success: false, error: error.message };
     }
+
+    if (data.user) {
+      await supabase.from("profiles").insert([
+        {
+          id: data.user.id,
+          role: "recruiter",
+          ...profileData,
+        },
+      ]);
+    }
+
+    await saveUserRole("recruiter");
+
+    return {
+      success: true,
+      data: {
+        user: data.user,
+      },
+    };
   },
 
+  // ✅ Logout
   logout: async () => {
-    try {
-      await AsyncStorage.multiRemove(["authToken", "userData", "userRole"]); // Remove userRole too
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: "Logout failed" };
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      return { success: false, error: error.message };
     }
+
+    await AsyncStorage.removeItem("userRole");
+
+    return { success: true };
   },
 
+  // ✅ Get Current User
   getCurrentUser: async () => {
-    try {
-      const userData = await AsyncStorage.getItem("userData");
-      return userData ? JSON.parse(userData) : null;
-    } catch {
-      return null;
-    }
+    const { data } = await supabase.auth.getUser();
+    return data?.user || null;
   },
 
+  // ✅ Get User Role
   getUserRole: async () => {
     try {
       const role = await AsyncStorage.getItem("userRole");
@@ -103,39 +146,33 @@ export const authService = {
     }
   },
 
+  // ✅ Is Authenticated
   isAuthenticated: async () => {
-    try {
-      const token = await AsyncStorage.getItem("authToken");
-      return !!token;
-    } catch {
-      return false;
-    }
+    const { data } = await supabase.auth.getSession();
+    return !!data.session;
   },
 
+  // ✅ Forgot Password
   forgotPassword: async (email) => {
-    try {
-      const response = await api.post("/auth/forgot-password", { email });
-      return { success: true, message: response.data.message };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || "Failed to send reset email.",
-      };
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+
+    if (error) {
+      return { success: false, error: error.message };
     }
+
+    return { success: true, message: "Password reset email sent." };
   },
 
-  resetPassword: async (resetToken, newPassword) => {
-    try {
-      const response = await api.post("/auth/reset-password", {
-        token: resetToken,
-        password: newPassword,
-      });
-      return { success: true, message: response.data.message };
-    } catch (error) {
-      return {
-        success: false,
-        error: error.response?.data?.message || "Failed to reset password.",
-      };
+  // ✅ Reset Password (after email link)
+  resetPassword: async (newPassword) => {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    if (error) {
+      return { success: false, error: error.message };
     }
+
+    return { success: true, message: "Password updated successfully." };
   },
 };

@@ -28,6 +28,52 @@ export function OnboardingProvider({ children }) {
     setFormData((prev) => ({ ...prev, ...fields }));
   };
 
+  const addWorkExperience = (experience) => {
+    setFormData((prev) => ({
+      ...prev,
+      workExperience: [...prev.workExperience, experience],
+    }));
+  };
+
+  const updateWorkExperience = (index, updatedExperience) => {
+    setFormData((prev) => ({
+      ...prev,
+      workExperience: prev.workExperience.map((exp, i) =>
+        i === index ? updatedExperience : exp,
+      ),
+    }));
+  };
+
+  const removeWorkExperience = (index, experience) => {
+    setFormData((prev) => ({
+      ...prev,
+      workExperience: prev.workExperience.filter((_, i) => i !== index),
+    }));
+  };
+
+  const addEducation = (education) => {
+    setFormData((prev) => ({
+      ...prev,
+      education: [...prev.education, education],
+    }));
+  };
+
+  const updateEducation = (index, updatedEducation) => {
+    setFormData((prev) => ({
+      ...prev,
+      education: prev.education.map((edu, i) =>
+        i === index ? updatedEducation : edu,
+      ),
+    }));
+  };
+
+  const removeEducation = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      education: prev.education.filter((_, i) => i !== index),
+    }));
+  };
+
   const getTotalProgress = useMemo(() => {
     const allFields = [
       // Step 1
@@ -67,6 +113,12 @@ export function OnboardingProvider({ children }) {
         formData,
         updateFormData,
         updateMultipleFields,
+        addWorkExperience,
+        updateWorkExperience,
+        removeWorkExperience,
+        addEducation,
+        updateEducation,
+        removeEducation,
         getTotalProgress,
       }}
     >

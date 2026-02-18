@@ -1,7 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { TouchableOpacity } from "react-native";
-import Step1Screen from "../screens/onboarding/candidate/Step1Screen";
+import OnboardingStep1Screen from "../screens/onboarding/candidate/OnboardingStep1Screen";
+import OnboardingStep2Screen from "../screens/onboarding/candidate/OnboardingStep2Screen";
+import OnboardingStep3Screen from "../screens/onboarding/candidate/OnboardingStep3Screen";
+import OnboardingStep4Screen from "../screens/onboarding/candidate/OnboardingStep4Screen";
 import { useAppTheme } from "../utils/theme";
 
 const Stack = createNativeStackNavigator();
@@ -46,10 +49,31 @@ export default function OnboardingStack() {
     >
       <Stack.Screen
         name="Step1"
-        component={Step1Screen}
+        component={OnboardingStep1Screen}
         options={{
           title: "Complete Your Profile",
-          headerLeft: null, // ✅ Hide back button on first screen
+          headerLeft: null,
+        }}
+      />
+      <Stack.Screen
+        name="Step2"
+        component={OnboardingStep2Screen}
+        options={{
+          title: "Work & Education",
+        }}
+      />
+      <Stack.Screen
+        name="Step3"
+        component={OnboardingStep3Screen}
+        options={{
+          title: "Skills & Portfolio",
+        }}
+      />
+      <Stack.Screen
+        name="Step4"
+        component={OnboardingStep4Screen}
+        options={{
+          title: "Profile Setup",
         }}
       />
     </Stack.Navigator>

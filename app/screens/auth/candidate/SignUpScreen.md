@@ -1,5 +1,4 @@
 // screens/SignUpScreen.js
-
 import { useState } from "react";
 import { View } from "react-native";
 import AuthFooter from "../../../components/auth/AuthFooter";
@@ -8,18 +7,18 @@ import SocialLoginSection from "../../../components/auth/SocialLoginSection";
 import AuthButton from "../../../components/common/Button";
 import LabelInput from "../../../components/common/LabelInput";
 import TermsCheckbox from "../../../features/terms/TermsCheckbox";
-import FormDivider from "../../../components/common/FormDivider";
 
+import FormDivider from "../../../components/common/FormDivider";
 import { useAuth } from "../../../context/AuthContext";
 import { useToast } from "../../../features/toast/ToastContext";
 import { useAuthForm } from "../../../hooks/useAuthForm";
 import { useHaptics } from "../../../hooks/useHaptic";
 
 export default function SignUpScreen({ navigation }) {
-  const { candidateSignUp } = useAuth(); // ✅ Removed candidateLogin
+  const { candidateSignUp } = useAuth();
+  const { candidateLogin } = useAuth();
   const { showToast } = useToast();
   const { impact, success, error } = useHaptics();
-
   const {
     errors,
     setErrors,
@@ -61,37 +60,42 @@ export default function SignUpScreen({ navigation }) {
     }
 
     if (!termsAccepted) {
-      showToast("Please accept Terms & Conditions to continue", "error");
+      showToast("Please accept Terms & Conditions to continue");
       await error();
       return;
     }
 
     setIsLoading(true);
-
     try {
-      // ✅ CHANGED: Send object to Supabase service
-      const result = await candidateSignUp({
-        name: name.trim(),
-        email: email.trim(),
-        password,
-      });
+      const result = await candidateSignUp(email, password, confirmPassword);
 
       if (result.success) {
-        showToast("Account created successfully!", "success");
+        showToast("Sign Up successful! Please login to continue");
         await success();
-
-        // ✅ REMOVED: manual login
-        // ✅ REMOVED: navigation.reset
-        // AuthContext will auto-authenticate and navigator will switch
+        await candidateLogin(email, password);
+        navigation.reset({
+          index: 0,
+          routes: [
+            { name: "Onboarding", params: { screen: "PersonalDetails" } },
+          ],
+        });
       } else {
         showToast(
-          result.error || "Please enter valid email or password",
-          "error",
+          result.error || "Please enter the email or password properly",
         );
+
+        //later wee need to remove this using for development
+        navigation.reset({
+          index: 0,
+          routes: [
+            { name: "Onboarding", params: { screen: "PersonalDetails" } },
+          ],
+        });
+        //later wee need to remove this using for development
         await error();
       }
-    } catch (err) {
-      showToast("An unexpected error occurred", "error");
+    } catch {
+      showToast("An unexpected error occurred");
       await error();
     } finally {
       setIsLoading(false);
@@ -124,7 +128,6 @@ export default function SignUpScreen({ navigation }) {
           error={errors.name}
           editable={!isLoading}
         />
-
         <LabelInput
           label="Email Address"
           iconName="mail"
@@ -139,7 +142,6 @@ export default function SignUpScreen({ navigation }) {
           error={errors.email}
           editable={!isLoading}
         />
-
         <LabelInput
           label="Password"
           iconName="lock-closed"
@@ -154,7 +156,6 @@ export default function SignUpScreen({ navigation }) {
           error={errors.password}
           editable={!isLoading}
         />
-
         <LabelInput
           label="Confirm Password"
           iconName="lock-closed"
@@ -173,6 +174,7 @@ export default function SignUpScreen({ navigation }) {
 
       <TermsCheckbox checked={termsAccepted} onCheck={setTermsAccepted} />
 
+      {/* Create Button */}
       <AuthButton
         title={isLoading ? "Creating Account..." : "Create Account"}
         onPress={handleSignUp}
@@ -182,8 +184,10 @@ export default function SignUpScreen({ navigation }) {
 
       <FormDivider text="OR SIGN UP WITH" />
 
+      {/* Social Login - No handlers needed! */}
       <SocialLoginSection disabled={isLoading} />
 
+      {/* Footer */}
       <AuthFooter
         question="Already have an account?"
         actionText="Sign In"

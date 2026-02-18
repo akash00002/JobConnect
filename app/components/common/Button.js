@@ -63,7 +63,7 @@ export default function AuthButton({
       activeOpacity={0.8}
     >
       <Text
-        className="text-lg font-semibold mr-2"
+        className="text-xl font-semibold mr-2"
         style={{
           color: isDisabledOrLoading ? current.textDisabled : current.textColor,
         }}

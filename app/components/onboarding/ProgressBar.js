@@ -17,17 +17,17 @@ export default function ProgressBar({
     globalTotalFields > 0 ? (globalFilledFields / globalTotalFields) * 100 : 0;
 
   return (
-    <View className="w-full px-6 py-4">
+    <View className="w-full px-6 pb-1">
       {/* Step Counter */}
-      <View className="flex-row justify-between mb-2">
+      <View className="flex-row justify-between mb-3">
         <Text
-          className="text-sm font-medium"
+          className="text-base font-semibold"
           style={{ color: colors.textSecondary }}
         >
           Step {currentStep} of {totalSteps}
         </Text>
         <Text
-          className="text-sm font-medium"
+          className="text-base font-semibold"
           style={{ color: colors.brandPrimary }}
         >
           {Math.round(globalProgress)}% Complete

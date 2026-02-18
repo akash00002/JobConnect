@@ -1,4 +1,3 @@
-// components/common/TitleInput.js
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
@@ -12,6 +11,7 @@ import { useAppTheme } from "../../utils/theme";
 
 const TitleInput = ({
   title,
+  subTitle,
   placeholder,
   iconName,
   value,
@@ -20,6 +20,8 @@ const TitleInput = ({
   error = "",
   onBlur,
   variant = "primary",
+  children,
+  height,
   ...textInputProps
 }) => {
   const { colors, isDark } = useAppTheme();
@@ -27,6 +29,7 @@ const TitleInput = ({
   const [showPassword, setShowPassword] = useState(false);
 
   const hasError = error && !isFocused;
+  const isUpload = variant === "upload";
 
   const handleBlur = () => {
     setIsFocused(false);
@@ -44,51 +47,64 @@ const TitleInput = ({
       textColor: colors.brandSecondary,
       iconColor: colors.brandSecondary,
     },
+    upload: {
+      borderColor: colors.brandPrimary,
+      textColor: colors.brandPrimary,
+      iconColor: colors.brandPrimary,
+    },
   };
 
   const current = variants[variant];
 
-  // Determine border color
   const getBorderColor = () => {
     if (hasError) return colors.error;
     if (isFocused) return current.borderColor;
-    return isDark ? colors.neutral700 : colors.neutral200;
+    return isDark ? colors.neutral700 : colors.neutral300;
   };
 
-  // Determine icon color
   const getIconColor = () => {
     if (hasError) return colors.error;
     if (isFocused) return current.iconColor;
-    return colors.neutral500;
+    return colors.neutral400;
   };
 
   return (
     <View className="mb-5">
-      {/* Title - Always visible above input */}
       {title && (
         <Text
-          className="text-lg font-medium mb-2 ml-1"
-          style={{
-            color: hasError
-              ? colors.error
-              : isFocused
-                ? current.textColor
-                : colors.text,
-          }}
+          className="text-lg font-medium ml-1 mb-2"
+          style={{ color: colors.text }}
         >
           {title}
         </Text>
       )}
 
-      {/* Input Field */}
+      {subTitle && (
+        <Text
+          className="text-sm ml-1 mb-2"
+          style={{ color: colors.textSecondary }}
+        >
+          {subTitle}
+        </Text>
+      )}
+
       <View
-        className="flex-row items-center h-14 rounded-2xl border px-4"
+        className={`flex-row rounded-2xl border px-4 ${height ? "items-start " : "items-center h-16"}`}
         style={{
           backgroundColor: colors.surface,
           borderColor: getBorderColor(),
+          ...(isUpload && {
+            borderWidth: 2,
+            borderStyle: "dashed",
+            height: 200,
+            backgroundColor: isDark ? colors.neutral800 : colors.neutral100,
+          }),
+          ...(height && {
+            height,
+          }),
         }}
       >
-        {iconName && (
+        {!isUpload && iconName && (
           <Ionicons
             name={iconName}
             size={20}
@@ -97,25 +113,29 @@ const TitleInput = ({
           />
         )}
 
-        <View className="flex-1">
-          <TextInput
-            style={{
-              fontSize: 16,
-              color: colors.text,
-              paddingVertical: Platform.OS === "ios" ? 12 : 8,
-            }}
-            value={value}
-            onChangeText={onChangeText}
-            onFocus={() => setIsFocused(true)}
-            onBlur={handleBlur}
-            placeholder={placeholder}
-            placeholderTextColor={colors.textSecondary}
-            secureTextEntry={isPassword && !showPassword}
-            {...textInputProps}
-          />
-        </View>
+        {!isUpload && (
+          <View className="flex-1">
+            <TextInput
+              style={{
+                fontSize: 16,
+                color: colors.text,
+                paddingVertical: Platform.OS === "ios" ? 12 : 8,
+              }}
+              value={value}
+              onChangeText={onChangeText}
+              onFocus={() => setIsFocused(true)}
+              onBlur={handleBlur}
+              placeholder={placeholder}
+              placeholderTextColor={colors.neutral400}
+              multiline={!!height}
+              textAlignVertical={height ? "top" : "auto"}
+              secureTextEntry={isPassword && !showPassword}
+              {...textInputProps}
+            />
+          </View>
+        )}
 
-        {isPassword && (
+        {isPassword ? (
           <TouchableOpacity
             onPress={() => setShowPassword(!showPassword)}
             className="p-1"
@@ -126,10 +146,17 @@ const TitleInput = ({
               color={getIconColor()}
             />
           </TouchableOpacity>
+        ) : isUpload ? (
+          children && (
+            <View className="absolute inset-0 items-center justify-center gap-2">
+              {children}
+            </View>
+          )
+        ) : (
+          children && <View className="ml-2">{children}</View>
         )}
       </View>
 
-      {/* Error Message */}
       {hasError && (
         <View className="flex-row items-center mt-1 px-1">
           <Ionicons name="alert-circle" size={14} color={colors.error} />

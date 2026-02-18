@@ -1,16 +1,27 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { useAuth } from "../context/AuthContext";
+import { useAppTheme } from "../utils/theme";
+import OnboardingStack from "./OnboardingStack";
+
+// Auth Screens
 import LoginScreen from "../screens/auth/candidate/LoginScreen";
 import SignUpScreen from "../screens/auth/candidate/SignUpScreen";
 import RecruiterLoginScreen from "../screens/auth/recruiter/RecruiterLoginScreen";
 import RecruiterSignUpScreen from "../screens/auth/recruiter/RecruiterSignUpScreen";
+
+// App Screens
 import HomeScreen from "../screens/main/candidate/HomeScreen";
-import { useAppTheme } from "../utils/theme";
-import OnboardingStack from "./OnboardingStack";
 
 const Stack = createNativeStackNavigator();
 
 export default function StackNavigator() {
-  const colors = useAppTheme();
+  const { isAuthenticated, isNewUser, loading } = useAuth();
+  const { colors } = useAppTheme();
+
+  if (loading) {
+    return null;
+  }
+
   return (
     <Stack.Navigator
       screenOptions={{
@@ -22,25 +33,36 @@ export default function StackNavigator() {
         transitionSpec: {
           open: {
             animation: "timing",
-            config: {
-              duration: 300,
-            },
+            config: { duration: 300 },
           },
           close: {
             animation: "timing",
-            config: {
-              duration: 300,
-            },
+            config: { duration: 300 },
           },
         },
       }}
     >
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="SignUp" component={SignUpScreen} />
-      <Stack.Screen name="RecruiterLogin" component={RecruiterLoginScreen} />
-      <Stack.Screen name="RecruiterSignUp" component={RecruiterSignUpScreen} />
-      <Stack.Screen name="Onboarding" component={OnboardingStack} />
-      <Stack.Screen name="Home" component={HomeScreen} />
+      {!isAuthenticated ? (
+        // 🔐 AUTH STACK
+        <>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="SignUp" component={SignUpScreen} />
+          <Stack.Screen
+            name="RecruiterLogin"
+            component={RecruiterLoginScreen}
+          />
+          <Stack.Screen
+            name="RecruiterSignUp"
+            component={RecruiterSignUpScreen}
+          />
+        </>
+      ) : isNewUser ? (
+        // 🚀 ONBOARDING STACK - new users from signup
+        <Stack.Screen name="Onboarding" component={OnboardingStack} />
+      ) : (
+        // 🏠 HOME STACK - existing users from login
+        <Stack.Screen name="Home" component={HomeScreen} />
+      )}
     </Stack.Navigator>
   );
 }

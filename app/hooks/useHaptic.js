@@ -1,5 +1,5 @@
 import * as Haptics from "expo-haptics";
-import { ENABLE_HAPTICS } from "../components/config/appConfig";
+import { ENABLE_HAPTICS } from "../config/appConfig";
 
 export const useHaptics = () => {
   if (!ENABLE_HAPTICS) {
