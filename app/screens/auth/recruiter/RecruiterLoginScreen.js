@@ -11,6 +11,7 @@ import { useAuth } from "../../../context/AuthContext";
 import { useToast } from "../../../features/toast/ToastContext";
 import { useAuthForm } from "../../../hooks/useAuthForm";
 import { useHaptics } from "../../../hooks/useHaptic";
+import { authService } from "../../../services/authService";
 import { useAppTheme } from "../../../utils/theme";
 
 export default function RecruiterLoginScreen({ navigation }) {
@@ -45,7 +46,7 @@ export default function RecruiterLoginScreen({ navigation }) {
 
     setIsLoading(true);
     try {
-      const result = await recruiterLogin(email, password);
+      const result = await recruiterLogin(email.trim(), password);
 
       if (result.success) {
         showToast("Login successful!", "success");
@@ -59,6 +60,22 @@ export default function RecruiterLoginScreen({ navigation }) {
       await error();
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // ✅ NEW: Forgot Password Handler (Supabase)
+  const handleForgotPassword = async () => {
+    if (!email) {
+      showToast("Enter your email first", "error");
+      return;
+    }
+
+    const result = await authService.forgotPassword(email.trim());
+
+    if (result.success) {
+      showToast("Password reset email sent!", "success");
+    } else {
+      showToast(result.error, "error");
     }
   };
 
@@ -114,7 +131,7 @@ export default function RecruiterLoginScreen({ navigation }) {
 
       {/* Forgot Password */}
       <View className="items-end mb-2">
-        <TouchableOpacity disabled={isLoading}>
+        <TouchableOpacity disabled={isLoading} onPress={handleForgotPassword}>
           <Text
             className="text-sm font-medium"
             style={{ color: colors.brandSecondary }}

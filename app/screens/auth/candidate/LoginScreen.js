@@ -61,7 +61,7 @@ export default function LoginScreen({ navigation }) {
         showToast(result.error || "Invalid email or password", "error");
         await error();
       }
-    } catch (err) {
+    } catch {
       showToast("Something went wrong. Please try again.", "error");
       await error();
     } finally {

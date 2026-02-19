@@ -6,9 +6,9 @@ import AuthFooter from "../../../components/auth/AuthFooter";
 import AuthFormContainer from "../../../components/auth/AuthFormContainer";
 import SocialLoginSection from "../../../components/auth/SocialLoginSection";
 import AuthButton from "../../../components/common/Button";
+import FormDivider from "../../../components/common/FormDivider";
 import LabelInput from "../../../components/common/LabelInput";
 import TermsCheckbox from "../../../features/terms/TermsCheckbox";
-import FormDivider from "../../../components/common/FormDivider";
 
 import { useAuth } from "../../../context/AuthContext";
 import { useToast } from "../../../features/toast/ToastContext";
@@ -90,7 +90,7 @@ export default function SignUpScreen({ navigation }) {
         );
         await error();
       }
-    } catch (err) {
+    } catch {
       showToast("An unexpected error occurred", "error");
       await error();
     } finally {

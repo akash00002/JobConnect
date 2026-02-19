@@ -84,8 +84,8 @@ export default function RecruiterSignUpScreen({ navigation }) {
     setIsLoading(true);
     try {
       const result = await recruiterSignUp({
-        name,
-        email,
+        name: name.trim(),
+        email: email.trim(),
         companyName,
         password,
       });
