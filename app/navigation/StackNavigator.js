@@ -6,6 +6,7 @@ import OnboardingStack from "./OnboardingStack";
 // Auth Screens
 import LoginScreen from "../screens/auth/candidate/LoginScreen";
 import SignUpScreen from "../screens/auth/candidate/SignUpScreen";
+
 import RecruiterLoginScreen from "../screens/auth/recruiter/RecruiterLoginScreen";
 import RecruiterSignUpScreen from "../screens/auth/recruiter/RecruiterSignUpScreen";
 

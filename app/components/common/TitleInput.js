@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
   Platform,
@@ -14,6 +14,7 @@ const TitleInput = ({
   subTitle,
   placeholder,
   iconName,
+  materialIcon,
   value,
   onChangeText,
   isPassword = false,
@@ -107,6 +108,15 @@ const TitleInput = ({
         {!isUpload && iconName && (
           <Ionicons
             name={iconName}
+            size={20}
+            color={getIconColor()}
+            style={{ marginRight: 12 }}
+          />
+        )}
+
+        {!isUpload && materialIcon && (
+          <MaterialIcons
+            name={materialIcon}
             size={20}
             color={getIconColor()}
             style={{ marginRight: 12 }}

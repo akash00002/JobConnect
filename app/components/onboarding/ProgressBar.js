@@ -9,6 +9,7 @@ export default function ProgressBar({
   totalFields, // Current step total fields
   globalFilledFields, // ✅ Total filled across all steps
   globalTotalFields, // ✅ Total fields across all steps
+  variant,
 }) {
   const { colors } = useAppTheme();
 
@@ -28,7 +29,11 @@ export default function ProgressBar({
         </Text>
         <Text
           className="text-base font-semibold"
-          style={{ color: colors.brandPrimary }}
+          style={
+            variant
+              ? { color: colors.brandSecondary }
+              : { color: colors.brandPrimary }
+          }
         >
           {Math.round(globalProgress)}% Complete
         </Text>
@@ -43,7 +48,7 @@ export default function ProgressBar({
           className="h-full rounded-full transition-all"
           style={{
             width: `${globalProgress}%`,
-            backgroundColor: colors.brandPrimary,
+            backgroundColor: `${variant ? colors.brandSecondary : colors.brandPrimary}`,
           }}
         />
       </View>

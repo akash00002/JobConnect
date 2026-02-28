@@ -126,7 +126,7 @@ export default function OnboardingStep2Screen({ navigation }) {
       totalSteps={4}
       fields={fields}
       navigation={navigation}
-      nextScreen={"Step3"}
+      nextScreen={"CandidateOnboardingStep3"}
       text="Share your professional background to help us find the best opportunities for you"
     >
       {/* Work Experience Section */}

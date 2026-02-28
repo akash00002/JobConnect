@@ -4,20 +4,38 @@ const OnboardingContext = createContext();
 
 export function OnboardingProvider({ children }) {
   const [formData, setFormData] = useState({
-    //Step1
+    //Candidate Step1
     currentCity: "",
     postalCode: "",
     desiredJobTitle: "",
-    //Step2
+    //Candidate Step2
     workExperience: [],
     education: [],
-    //Step3
+    //Candidate Step3
     skills: [],
     portfolioLinks: [],
-    //Step4
+    //Candidate Step4
     profilePhoto: null, // ✅ Changed from [] to null (single photo)
     resume: "",
     aboutMe: "",
+
+    //Recruiter Step1
+    companyWebsite: "",
+    industry: "",
+    companySize: "",
+    companyDescription: "",
+
+    //Recruiter Step2
+    companyLogo: null,
+    coverImage: null,
+    headquarters: "",
+    linkedinUrl: "",
+    twitterHandle: "",
+
+    //Recruiter Step3
+    jobTitle: "",
+    workPhone: "",
+    businessVerificationDocument: null,
   });
 
   const updateFormData = (field, value) => {
@@ -74,7 +92,7 @@ export function OnboardingProvider({ children }) {
     }));
   };
 
-  const getTotalProgress = useMemo(() => {
+  const getCandidateProgress = useMemo(() => {
     const allFields = [
       // Step 1
       formData.currentCity,
@@ -107,6 +125,34 @@ export function OnboardingProvider({ children }) {
     return { filledFields, totalFields };
   }, [formData]);
 
+  const getRecruiterProgress = useMemo(() => {
+    const allFields = [
+      formData.companyWebsite,
+      formData.industry,
+      formData.companySize,
+      formData.companyDescription,
+      formData.companyLogo,
+      formData.coverImage,
+      formData.headquarters,
+      formData.linkedinUrl,
+      formData.twitterHandle,
+      formData.jobTitle,
+      formData.workPhone,
+      formData.businessVerificationDocument,
+    ];
+
+    const totalFields = allFields.length;
+
+    const filledFields = allFields.filter((field) => {
+      if (Array.isArray(field)) {
+        return field.length > 0;
+      }
+      return field && field.toString().trim() !== "";
+    }).length;
+
+    return { filledFields, totalFields };
+  }, [formData]);
+
   return (
     <OnboardingContext.Provider
       value={{
@@ -119,7 +165,8 @@ export function OnboardingProvider({ children }) {
         addEducation,
         updateEducation,
         removeEducation,
-        getTotalProgress,
+        getCandidateProgress,
+        getRecruiterProgress,
       }}
     >
       {children}

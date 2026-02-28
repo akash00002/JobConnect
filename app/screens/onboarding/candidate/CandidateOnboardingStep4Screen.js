@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import { View } from "react-native";
-import ProfilePhoto from "../../../components/common/ProfilePhoto";
-import Resume from "../../../components/common/Resume";
+import Resume from "../../../components/common/DocumentUpload";
 import TitleInput from "../../../components/common/TitleInput";
 import OnboardingContainer from "../../../components/onboarding/OnboardingContainer";
+import ProfilePhoto from "../../../components/onboarding/ProfilePhoto";
 import { useOnboarding } from "../../../context/OnboardingContext";
 
 export default function OnboardingStep4Screen({ navigation }) {

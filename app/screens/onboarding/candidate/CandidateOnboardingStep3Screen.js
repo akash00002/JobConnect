@@ -54,7 +54,7 @@ export default function OnboardingStep1Screen({ navigation }) {
       totalSteps={4}
       fields={fields}
       navigation={navigation}
-      nextScreen={"Step4"}
+      nextScreen={"CandidateOnboardingStep4"}
       text="Almost there! Add your skills to stand out."
     >
       <TitleInput

@@ -55,7 +55,7 @@ export default function SplashScreen({ onFinish }) {
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [fadeAnim, onFinish, pulseAnim, spinAnim, translateY]);
 
   const spin = spinAnim.interpolate({
     inputRange: [0, 1],

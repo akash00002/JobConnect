@@ -21,7 +21,7 @@ export const authService = {
     // Step 2: Check role BEFORE allowing access
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("role")
+      .select("*, candidate_profiles(*)")
       .eq("id", data.user.id)
       .single();
 
@@ -53,26 +53,19 @@ export const authService = {
 
   // ✅ Candidate Signup
   candidateSignUp: async (userData) => {
-    const { email, password, ...profileData } = userData;
+    const { email, password, name } = userData;
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+    const { data, error } = await supabase.auth.signUp({ email, password });
 
     if (error) {
       return { success: false, error: error.message };
     }
 
     if (data.user) {
-      const { error: profileError } = await supabase.from("profiles").upsert([
-        {
-          id: data.user.id,
-          email: email,
-          role: "candidate",
-          ...profileData,
-        },
-      ]);
+      // Step 1: Insert into profiles (base table)
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .upsert([{ id: data.user.id, email, name, role: "candidate" }]);
 
       if (profileError) {
         console.error("Profile insert failed:", profileError.message);
@@ -81,13 +74,26 @@ export const authService = {
           error: "Signup failed. Could not save profile.",
         };
       }
+
+      // Step 2: Insert into candidate_profiles (role-specific table)
+      const { error: candidateError } = await supabase
+        .from("candidate_profiles")
+        .upsert([{ id: data.user.id, email, name }]);
+
+      if (candidateError) {
+        console.error(
+          "Candidate profile insert failed:",
+          candidateError.message,
+        );
+        return {
+          success: false,
+          error: "Signup failed. Could not save candidate profile.",
+        };
+      }
     }
 
     await saveUserRole("candidate");
-    return {
-      success: true,
-      data: { user: data.user },
-    };
+    return { success: true, data: { user: data.user } };
   },
 
   // ✅ Recruiter Login
@@ -105,7 +111,7 @@ export const authService = {
     // Step 2: Check role BEFORE allowing access
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("role")
+      .select("*, recruiter_profiles(*)")
       .eq("id", data.user.id)
       .single();
 
@@ -137,41 +143,48 @@ export const authService = {
 
   // ✅ Recruiter Signup
   recruiterSignUp: async (userData) => {
-    const { email, password, ...profileData } = userData;
+    const { email, password, name } = userData;
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    console.log("1. Signup result:", data?.user?.id, error?.message);
 
-    if (error) {
-      return { success: false, error: error.message };
-    }
+    if (error) return { success: false, error: error.message };
 
     if (data.user) {
-      const { error: profileError } = await supabase.from("profiles").upsert([
-        {
-          id: data.user.id,
-          email: email,
-          role: "recruiter",
-          ...profileData,
-        },
-      ]);
+      // Check session immediately after signup
+      const { data: sessionData } = await supabase.auth.getSession();
+      console.log("2. Session after signup:", sessionData?.session?.user?.id);
 
-      if (profileError) {
-        console.error("Profile insert failed:", profileError.message);
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .upsert([{ id: data.user.id, email, name, role: "recruiter" }], {
+          onConflict: "id",
+        });
+      console.log("3. Profile insert error:", profileError?.message);
+
+      if (profileError)
         return {
           success: false,
           error: "Signup failed. Could not save profile.",
         };
-      }
+
+      const { error: recruiterError } = await supabase
+        .from("recruiter_profiles")
+        .upsert([{ id: data.user.id, email, name }], { onConflict: "id" });
+      console.log(
+        "4. Recruiter profile insert error:",
+        recruiterError?.message,
+      );
+
+      if (recruiterError)
+        return {
+          success: false,
+          error: "Signup failed. Could not save recruiter profile.",
+        };
     }
 
     await saveUserRole("recruiter");
-    return {
-      success: true,
-      data: { user: data.user },
-    };
+    return { success: true, data: { user: data.user } };
   },
 
   // ✅ Logout

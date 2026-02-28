@@ -22,16 +22,21 @@ export default function OnboardingContainer({
   navigation,
   nextScreen,
   text,
+  variant,
 }) {
   const { colors } = useAppTheme();
-  const { getTotalProgress, formData } = useOnboarding();
+  const { getCandidateProgress, getRecruiterProgress, formData } =
+    useOnboarding();
   const [loading, setLoading] = useState(false);
   const { completeOnboarding } = useAuth();
 
   const { filledFields, totalFields } = useMemo(() => {
-    const filled = fields.filter(
-      (field) => field && field.trim() !== "",
-    ).length;
+    const filled = fields.filter((field) => {
+      if (!field) return false;
+      if (Array.isArray(field)) return field.length > 0;
+      if (typeof field === "string") return field.trim() !== "";
+      return true;
+    }).length;
     return { filledFields: filled, totalFields: fields.length };
   }, [fields]);
 
@@ -46,12 +51,14 @@ export default function OnboardingContainer({
   const handleFinish = async () => {
     try {
       setLoading(true);
-      console.log("formData:", JSON.stringify(formData)); // ← check this
-      const result = await onboardingService.saveProfile(formData);
-      console.log("save result:", result); // ← check this
+      if (variant === "recruiter") {
+        await onboardingService.saveRecruiterProfile(formData);
+      } else {
+        await onboardingService.saveCandidateProfile(formData);
+      }
       completeOnboarding();
     } catch (error) {
-      console.error("Save failed:", error); // ← check this
+      console.error("Failed to save profile:", error.message);
     } finally {
       setLoading(false);
     }
@@ -73,8 +80,17 @@ export default function OnboardingContainer({
           totalSteps={totalSteps}
           filledFields={filledFields}
           totalFields={totalFields}
-          globalFilledFields={getTotalProgress.filledFields}
-          globalTotalFields={getTotalProgress.totalFields}
+          globalFilledFields={
+            variant === "recruiter"
+              ? getRecruiterProgress.filledFields
+              : getCandidateProgress.filledFields
+          }
+          globalTotalFields={
+            variant === "recruiter"
+              ? getRecruiterProgress.totalFields
+              : getCandidateProgress.totalFields
+          }
+          variant={variant}
         />
         <ScrollView className="flex-1 px-6" keyboardShouldPersistTaps="handled">
           <View className="py-2">
@@ -91,15 +107,23 @@ export default function OnboardingContainer({
         <View className="px-6 gap-3">
           {currentStep === totalSteps ? (
             <AuthButton
-              title="Finish Profile"
+              title={
+                variant === "recruiter" ? "Complete Setup" : "Finish Profile"
+              }
               onPress={handleFinish}
+              variant={variant}
               iconName="checkmark-circle-sharp"
               loading={loading}
             />
           ) : (
-            <AuthButton title="Save & Continue" onPress={handleNext} />
+            <AuthButton
+              title={variant === "recruiter" ? "Continue" : "Save & Continue"}
+              variant={variant}
+              onPress={handleNext}
+              iconName="arrow-forward"
+            />
           )}
-          {currentStep !== totalSteps && (
+          {currentStep !== totalSteps && variant !== "recruiter" && (
             <AuthButton
               title="Skip for now"
               onPress={handleSkip}

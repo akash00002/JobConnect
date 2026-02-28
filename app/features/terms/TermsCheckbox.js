@@ -39,9 +39,15 @@ export default function TermsCheckbox({
           <Pressable
             className="h-5 w-5 rounded-md border transition-all"
             style={{
-              backgroundColor: checked ? colors.brandPrimary : colors.surface,
+              backgroundColor: checked
+                ? isRecruiter
+                  ? colors.brandSecondary
+                  : colors.brandPrimary
+                : colors.surface,
               borderColor: checked
-                ? colors.brandPrimary
+                ? isRecruiter
+                  ? colors.brandSecondary
+                  : colors.brandPrimary
                 : isDark
                   ? colors.neutral600
                   : colors.neutral300,

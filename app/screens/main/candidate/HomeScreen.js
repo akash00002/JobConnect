@@ -3,7 +3,7 @@ import { ActivityIndicator, Image, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AuthButton from "../../../components/common/Button";
 import { useAuth } from "../../../context/AuthContext";
-import { supabase } from "../../../services/api";
+import { onboardingService } from "../../../services/OnboardingService";
 import { useAppTheme } from "../../../utils/theme";
 
 export default function HomeScreen() {
@@ -18,14 +18,7 @@ export default function HomeScreen() {
 
   async function fetchProfile() {
     try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-
-      if (error && error.code !== "PGRST116") throw error;
-      console.log("profile photo:", data?.profile_photo);
+      const data = await onboardingService.getProfile();
       setProfile(data);
     } catch (error) {
       console.error("Failed to fetch profile:", error);
@@ -33,6 +26,11 @@ export default function HomeScreen() {
       setLoading(false);
     }
   }
+
+  const cp = profile?.candidate_profiles;
+  const rp = profile?.recruiter_profiles;
+  const isRecruiter = profile?.role === "recruiter";
+  const photoUri = profile?.profile_photo || rp?.company_logo;
 
   if (loading) {
     return (
@@ -55,11 +53,11 @@ export default function HomeScreen() {
           Profile Data (Test)
         </Text>
 
-        {/* Profile Photo */}
-        {profile?.profile_photo ? (
-          <View className="items-center mb-6">
+        {/* Profile / Company Logo Photo */}
+        <View className="items-center mb-6">
+          {photoUri ? (
             <Image
-              source={{ uri: profile.profile_photo }}
+              source={{ uri: photoUri }}
               style={{
                 height: 96,
                 width: 96,
@@ -68,9 +66,7 @@ export default function HomeScreen() {
                 borderColor: colors.brandPrimary,
               }}
             />
-          </View>
-        ) : (
-          <View className="items-center mb-6">
+          ) : (
             <View
               style={{
                 height: 96,
@@ -85,104 +81,156 @@ export default function HomeScreen() {
             >
               <Text style={{ color: colors.textSecondary }}>No Photo</Text>
             </View>
+          )}
+        </View>
+
+        {/* Cover Image (Recruiter only) */}
+        {isRecruiter && rp?.cover_image && (
+          <View className="mb-4 rounded-2xl overflow-hidden">
+            <Image
+              source={{ uri: rp.cover_image }}
+              style={{ width: "100%", height: 150 }}
+              resizeMode="cover"
+            />
           </View>
         )}
 
-        {/* Auth Info */}
         <Section title="Auth" colors={colors}>
           <Row label="Email" value={user?.email} colors={colors} />
+          <Row label="Role" value={profile?.role} colors={colors} />
           <Row label="User ID" value={user?.id} colors={colors} />
         </Section>
 
-        {/* Step 1 */}
-        <Section title="Step 1 — Basic Info" colors={colors}>
-          <Row label="City" value={profile?.current_city} colors={colors} />
-          <Row
-            label="Postal Code"
-            value={profile?.postal_code}
-            colors={colors}
-          />
-          <Row
-            label="Job Title"
-            value={profile?.desired_job_title}
-            colors={colors}
-          />
-        </Section>
+        {/* ── Candidate Sections ── */}
+        {!isRecruiter && (
+          <>
+            <Section title="Basic Info" colors={colors}>
+              <Row label="Name" value={profile?.name} colors={colors} />
+              <Row label="About Me" value={profile?.about_me} colors={colors} />
+              <Row label="City" value={cp?.current_city} colors={colors} />
+              <Row
+                label="Postal Code"
+                value={cp?.postal_code}
+                colors={colors}
+              />
+              <Row
+                label="Job Title"
+                value={cp?.desired_job_title}
+                colors={colors}
+              />
+            </Section>
 
-        {/* Step 2 */}
-        <Section title="Step 2 — Work Experience" colors={colors}>
-          {profile?.work_experience?.length > 0 ? (
-            profile.work_experience.map((exp, i) => (
-              <View key={i} className="mb-2">
-                <Row label="Job Title" value={exp.jobTitle} colors={colors} />
-                <Row label="Company" value={exp.companyName} colors={colors} />
-                <Row
-                  label="Present"
-                  value={exp.isPresent ? "Yes" : "No"}
-                  colors={colors}
-                />
-              </View>
-            ))
-          ) : (
-            <Text style={{ color: colors.textSecondary }}>
-              No work experience
-            </Text>
-          )}
-        </Section>
+            <Section title="Work Experience" colors={colors}>
+              {cp?.work_experience?.length > 0 ? (
+                cp.work_experience.map((exp, i) => (
+                  <View key={i} className="mb-2">
+                    <Row
+                      label="Job Title"
+                      value={exp.jobTitle}
+                      colors={colors}
+                    />
+                    <Row
+                      label="Company"
+                      value={exp.companyName}
+                      colors={colors}
+                    />
+                    <Row
+                      label="Present"
+                      value={exp.isPresent ? "Yes" : "No"}
+                      colors={colors}
+                    />
+                  </View>
+                ))
+              ) : (
+                <Text style={{ color: colors.textSecondary }}>
+                  No work experience
+                </Text>
+              )}
+            </Section>
 
-        <Section title="Step 2 — Education" colors={colors}>
-          {profile?.education?.length > 0 ? (
-            profile.education.map((edu, i) => (
-              <View key={i} className="mb-2">
-                <Row label="Degree" value={edu.degree} colors={colors} />
-                <Row
-                  label="Institution"
-                  value={edu.institution}
-                  colors={colors}
-                />
-              </View>
-            ))
-          ) : (
-            <Text style={{ color: colors.textSecondary }}>No education</Text>
-          )}
-        </Section>
+            <Section title="Education" colors={colors}>
+              {cp?.education?.length > 0 ? (
+                cp.education.map((edu, i) => (
+                  <View key={i} className="mb-2">
+                    <Row label="Degree" value={edu.degree} colors={colors} />
+                    <Row
+                      label="Institution"
+                      value={edu.institution}
+                      colors={colors}
+                    />
+                  </View>
+                ))
+              ) : (
+                <Text style={{ color: colors.textSecondary }}>
+                  No education
+                </Text>
+              )}
+            </Section>
 
-        {/* Step 3 */}
-        <Section title="Step 3 — Skills & Links" colors={colors}>
-          <Row
-            label="Skills"
-            value={profile?.skills?.join(", ")}
-            colors={colors}
-          />
-          <Row
-            label="LinkedIn"
-            value={profile?.portfolio_links?.[0]}
-            colors={colors}
-          />
-          <Row
-            label="GitHub"
-            value={profile?.portfolio_links?.[1]}
-            colors={colors}
-          />
-          <Row
-            label="Website"
-            value={profile?.portfolio_links?.[2]}
-            colors={colors}
-          />
-        </Section>
+            <Section title="Skills & Links" colors={colors}>
+              <Row
+                label="Skills"
+                value={cp?.skills?.join(", ")}
+                colors={colors}
+              />
+              <Row
+                label="LinkedIn"
+                value={cp?.portfolio_links?.[0]}
+                colors={colors}
+              />
+              <Row
+                label="GitHub"
+                value={cp?.portfolio_links?.[1]}
+                colors={colors}
+              />
+              <Row
+                label="Website"
+                value={cp?.portfolio_links?.[2]}
+                colors={colors}
+              />
+              <Row label="Resume URL" value={cp?.resume} colors={colors} />
+            </Section>
+          </>
+        )}
 
-        {/* Step 4 */}
-        <Section title="Step 4 — Photo & Resume" colors={colors}>
-          <Row
-            label="Photo URL"
-            value={profile?.profile_photo}
-            colors={colors}
-          />
-          <Row label="Resume URL" value={profile?.resume} colors={colors} />
-          <Row label="About Me" value={profile?.about_me} colors={colors} />
-        </Section>
+        {/* ── Recruiter Sections ── */}
+        {isRecruiter && (
+          <>
+            <Section title="Basic Info" colors={colors}>
+              <Row label="Name" value={profile?.name} colors={colors} />
+              <Row label="About Me" value={profile?.about_me} colors={colors} />
+              <Row label="Job Title" value={rp?.job_title} colors={colors} />
+              <Row label="Work Phone" value={rp?.work_phone} colors={colors} />
+            </Section>
 
-        {/* Logout */}
+            <Section title="Company Info" colors={colors}>
+              <Row label="Company" value={rp?.company_name} colors={colors} />
+              <Row label="Industry" value={rp?.industry} colors={colors} />
+              <Row label="Size" value={rp?.company_size} colors={colors} />
+              <Row
+                label="Website"
+                value={rp?.company_website}
+                colors={colors}
+              />
+              <Row
+                label="Location"
+                value={rp?.company_location}
+                colors={colors}
+              />
+              <Row
+                label="Description"
+                value={rp?.company_description}
+                colors={colors}
+              />
+            </Section>
+
+            <Section title="Social" colors={colors}>
+              <Row label="LinkedIn" value={rp?.linkedin_url} colors={colors} />
+              <Row label="Twitter" value={rp?.twitter_handle} colors={colors} />
+            </Section>
+          </>
+        )}
+
         <View className="mt-4 mb-10">
           <AuthButton title="Logout" onPress={logout} variant="secondary" />
         </View>

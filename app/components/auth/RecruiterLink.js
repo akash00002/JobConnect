@@ -19,7 +19,7 @@ const RecruiterLink = ({ onPress }) => {
       >
         <Ionicons name="briefcase" size={18} color={colors.textSecondary} />
         <Text
-          className="text-sm font-medium"
+          className="text-base font-medium"
           style={{ color: colors.textSecondary }}
         >
           Login as Recruiter
