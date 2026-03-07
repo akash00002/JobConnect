@@ -1,21 +1,20 @@
 import { useMemo } from "react";
 import { View } from "react-native";
 import Resume from "../../../components/common/DocumentUpload";
-import TitleInput from "../../../components/common/TitleInput";
+import AboutMeInput from "../../../components/onboarding/AboutMeInput";
 import OnboardingContainer from "../../../components/onboarding/OnboardingContainer";
 import ProfilePhoto from "../../../components/onboarding/ProfilePhoto";
 import { useOnboarding } from "../../../context/OnboardingContext";
 
 export default function OnboardingStep4Screen({ navigation }) {
-  const { formData, updateFormData } = useOnboarding();
-
-  const aboutMe = formData.aboutMe;
+  const { formData } = useOnboarding();
 
   const fields = useMemo(() => {
     const hasPhoto = formData.profilePhoto ? "filled" : "";
     const hasResume = formData.resume ? "filled" : "";
-    return [hasPhoto, hasResume];
-  }, [formData.profilePhoto, formData.resume]);
+    const hasAboutMe = formData.aboutMe ? "filled" : "";
+    return [hasPhoto, hasResume, hasAboutMe];
+  }, [formData.profilePhoto, formData.resume, formData.aboutMe]);
 
   return (
     <OnboardingContainer
@@ -30,13 +29,7 @@ export default function OnboardingStep4Screen({ navigation }) {
 
       <Resume />
 
-      <TitleInput
-        title="About Me"
-        placeholder="Tell recruiters briefly about yourself, your key skills, and what you are looking for..."
-        height={150}
-        value={aboutMe}
-        onChangeText={(text) => updateFormData("aboutMe", text)}
-      />
+      <AboutMeInput />
     </OnboardingContainer>
   );
 }

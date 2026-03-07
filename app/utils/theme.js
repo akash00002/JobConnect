@@ -15,6 +15,9 @@ export const useAppTheme = () => {
       text: isDark ? "#ffffff" : "#0f172a",
       textSecondary: isDark ? "#94a3b8" : "#64748b",
 
+      black: "#000000",
+      white: "#ffffff",
+
       // Brand colors
       brandPrimary: "#135bec",
       brandSecondary: "#4f46e5",

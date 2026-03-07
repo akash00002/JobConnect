@@ -11,7 +11,8 @@ import RecruiterLoginScreen from "../screens/auth/recruiter/RecruiterLoginScreen
 import RecruiterSignUpScreen from "../screens/auth/recruiter/RecruiterSignUpScreen";
 
 // App Screens
-import HomeScreen from "../screens/main/candidate/HomeScreen";
+import Settings from "../screens/main/SettingsScreen";
+import BottomTabNavigator from "./BottomTabNavigator";
 
 const Stack = createNativeStackNavigator();
 
@@ -62,7 +63,14 @@ export default function StackNavigator() {
         <Stack.Screen name="Onboarding" component={OnboardingStack} />
       ) : (
         // 🏠 HOME STACK - existing users from login
-        <Stack.Screen name="Home" component={HomeScreen} />
+        <>
+          <Stack.Screen
+            name="CandidateMainApp"
+            component={BottomTabNavigator}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name="Settings" component={Settings} />
+        </>
       )}
     </Stack.Navigator>
   );

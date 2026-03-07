@@ -1,6 +1,7 @@
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
+  KeyboardAvoidingView,
   Platform,
   Text,
   TextInput,
@@ -70,7 +71,10 @@ const TitleInput = ({
   };
 
   return (
-    <View className="mb-5">
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      className="mb-5"
+    >
       {title && (
         <Text
           className="text-lg font-medium ml-1 mb-2"
@@ -90,7 +94,7 @@ const TitleInput = ({
       )}
 
       <View
-        className={`flex-row rounded-2xl border px-4 ${height ? "items-start " : "items-center h-16"}`}
+        className={`flex-row rounded-2xl border px-4 ${height ? "items-start" : "items-center h-16"}`}
         style={{
           backgroundColor: colors.surface,
           borderColor: getBorderColor(),
@@ -100,9 +104,7 @@ const TitleInput = ({
             height: 200,
             backgroundColor: isDark ? colors.neutral800 : colors.neutral100,
           }),
-          ...(height && {
-            height,
-          }),
+          ...(height && { height }),
         }}
       >
         {!isUpload && iconName && (
@@ -175,7 +177,7 @@ const TitleInput = ({
           </Text>
         </View>
       )}
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

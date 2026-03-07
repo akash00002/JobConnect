@@ -1,16 +1,12 @@
-import { Ionicons } from "@expo/vector-icons";
 import { useMemo, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
 import TitleInput from "../../../components/common/TitleInput";
 import OnboardingContainer from "../../../components/onboarding/OnboardingContainer";
+import SkillsInput from "../../../components/onboarding/SkillsInput";
 import { useOnboarding } from "../../../context/OnboardingContext";
-import { useAppTheme } from "../../../utils/theme";
 
 export default function OnboardingStep1Screen({ navigation }) {
   const { formData, updateFormData } = useOnboarding();
-  const { colors } = useAppTheme();
 
-  const [skillInput, setSkillInput] = useState("");
   const [linkedinUrl, setLinkedinUrl] = useState(
     formData.portfolioLinks?.[0] || "",
   );
@@ -29,21 +25,6 @@ export default function OnboardingStep1Screen({ navigation }) {
     return [hasSkills, hasLinks];
   }, [skills.length, linkedinUrl, githubUrl, websiteUrl]);
 
-  function handleSaveSkills() {
-    if (!skillInput?.trim()) return;
-    if (skills.length >= 5) return;
-    if (skills.includes(skillInput.trim())) return;
-    updateFormData("skills", [...skills, skillInput.trim()]);
-    setSkillInput("");
-  }
-
-  function handleRemoveSkill(index) {
-    updateFormData(
-      "skills",
-      skills.filter((_, i) => i !== index),
-    );
-  }
-
   function saveLinks(linkedin, github, website) {
     updateFormData("portfolioLinks", [linkedin, github, website]);
   }
@@ -57,51 +38,11 @@ export default function OnboardingStep1Screen({ navigation }) {
       nextScreen={"CandidateOnboardingStep4"}
       text="Almost there! Add your skills to stand out."
     >
-      <TitleInput
-        title="Professional Skills"
-        subTitle="Add at least 5 skills to improve your visibility"
-        placeholder="Add a skill (e.g. Figma)"
-        iconName="search"
-        value={skillInput}
-        onChangeText={setSkillInput}
-      >
-        <TouchableOpacity
-          onPress={handleSaveSkills}
-          disabled={skills.length >= 5}
-        >
-          <Ionicons
-            name="add-sharp"
-            size={22}
-            color={skills.length >= 5 ? colors.neutral400 : colors.brandPrimary}
-          />
-        </TouchableOpacity>
-      </TitleInput>
-
-      {skills.length > 0 && (
-        <View className="flex-row flex-wrap gap-2 mb-6">
-          {skills.map((skill, index) => (
-            <View
-              key={index}
-              className="flex-row items-center gap-3 justify-center rounded-xl px-3 py-1 h-10"
-              style={{ backgroundColor: colors.neutral200 }}
-            >
-              <Text
-                className="text-base font-semibold"
-                style={{ color: colors.brandPrimary }}
-              >
-                {String(skill)}
-              </Text>
-              <TouchableOpacity onPress={() => handleRemoveSkill(index)}>
-                <Ionicons
-                  name="close-sharp"
-                  color={colors.brandPrimary}
-                  size={16}
-                />
-              </TouchableOpacity>
-            </View>
-          ))}
-        </View>
-      )}
+      {/* ✅ Just SkillsInput — no duplicate TitleInput */}
+      <SkillsInput
+        skills={formData.skills}
+        onChange={(updated) => updateFormData("skills", updated)}
+      />
 
       <TitleInput
         title="Portfolio & Social Links"
@@ -113,7 +54,6 @@ export default function OnboardingStep1Screen({ navigation }) {
           saveLinks(text, githubUrl, websiteUrl);
         }}
       />
-
       <TitleInput
         placeholder="GitHub Profile URL"
         iconName="logo-github"
@@ -123,7 +63,6 @@ export default function OnboardingStep1Screen({ navigation }) {
           saveLinks(linkedinUrl, text, websiteUrl);
         }}
       />
-
       <TitleInput
         placeholder="Personal Website URL"
         iconName="link"

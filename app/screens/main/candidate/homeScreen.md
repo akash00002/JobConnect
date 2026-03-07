@@ -7,51 +7,49 @@ import { onboardingService } from "../../../services/OnboardingService";
 import { useAppTheme } from "../../../utils/theme";
 
 export default function HomeScreen() {
-  const { colors } = useAppTheme();
-  const { logout, user } = useAuth();
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+const { colors } = useAppTheme();
+const { logout, user } = useAuth();
+const [profile, setProfile] = useState(null);
+const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
+useEffect(() => {
+fetchProfile();
+}, []);
 
-  async function fetchProfile() {
-    try {
-      const data = await onboardingService.getProfile();
-      setProfile(data);
-    } catch (error) {
-      console.error("Failed to fetch profile:", error);
-    } finally {
-      setLoading(false);
-    }
-  }
+async function fetchProfile() {
+try {
+const data = await onboardingService.getProfile();
+setProfile(data);
+} catch (error) {
+console.error("Failed to fetch profile:", error);
+} finally {
+setLoading(false);
+}
+}
 
-  const cp = profile?.candidate_profiles;
-  const rp = profile?.recruiter_profiles;
-  const isRecruiter = profile?.role === "recruiter";
-  const photoUri = profile?.profile_photo || rp?.company_logo;
+const cp = profile?.candidate_profiles;
+const rp = profile?.recruiter_profiles;
+const isRecruiter = profile?.role === "recruiter";
+const photoUri = profile?.profile_photo || rp?.company_logo;
 
-  if (loading) {
-    return (
-      <SafeAreaView
-        style={{ flex: 1, backgroundColor: colors.background }}
-        className="items-center justify-center"
-      >
-        <ActivityIndicator size="large" color={colors.brandPrimary} />
-      </SafeAreaView>
-    );
-  }
+if (loading) {
+return (
+<SafeAreaView
+style={{ flex: 1, backgroundColor: colors.background }}
+className="items-center justify-center" >
+<ActivityIndicator size="large" color={colors.brandPrimary} />
+</SafeAreaView>
+);
+}
 
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
-      <ScrollView className="flex-1 px-6 py-4">
-        <Text
-          className="text-2xl font-bold mb-6"
-          style={{ color: colors.text }}
-        >
-          Profile Data (Test)
-        </Text>
+return (
+<SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+<ScrollView className="flex-1 px-6 py-4">
+<Text
+className="text-2xl font-bold mb-6"
+style={{ color: colors.text }} >
+Profile Data (Test)
+</Text>
 
         {/* Profile / Company Logo Photo */}
         <View className="items-center mb-6">
@@ -236,42 +234,39 @@ export default function HomeScreen() {
         </View>
       </ScrollView>
     </SafeAreaView>
-  );
+
+);
 }
 
 function Section({ title, children, colors }) {
-  return (
-    <View
-      className="rounded-2xl p-4 mb-4"
-      style={{ backgroundColor: colors.surface }}
-    >
-      <Text
-        className="text-base font-bold mb-3"
-        style={{ color: colors.brandPrimary }}
-      >
-        {title}
-      </Text>
-      {children}
-    </View>
-  );
+return (
+<View
+className="rounded-2xl p-4 mb-4"
+style={{ backgroundColor: colors.surface }} >
+<Text
+className="text-base font-bold mb-3"
+style={{ color: colors.brandPrimary }} >
+{title}
+</Text>
+{children}
+</View>
+);
 }
 
 function Row({ label, value, colors }) {
-  return (
-    <View className="flex-row justify-between py-1">
-      <Text
-        className="text-sm font-medium"
-        style={{ color: colors.textSecondary }}
-      >
-        {label}
-      </Text>
-      <Text
-        className="text-sm flex-1 text-right ml-4"
-        style={{ color: colors.text }}
-        numberOfLines={1}
-      >
-        {value || "—"}
-      </Text>
-    </View>
-  );
+return (
+<View className="flex-row justify-between py-1">
+<Text
+className="text-sm font-medium"
+style={{ color: colors.textSecondary }} >
+{label}
+</Text>
+<Text
+className="text-sm flex-1 text-right ml-4"
+style={{ color: colors.text }}
+numberOfLines={1} >
+{value || "—"}
+</Text>
+</View>
+);
 }

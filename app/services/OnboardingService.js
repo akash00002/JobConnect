@@ -12,16 +12,24 @@ async function getUser() {
 }
 
 async function uploadImage(uri, bucket, folder) {
+  console.log("Uploading image URI:", uri);
   const fileName = `${folder}/${Date.now()}.jpg`;
   const base64 = await FileSystem.readAsStringAsync(uri, {
     encoding: "base64",
   });
+  console.log("Base64 length:", base64.length);
   const arrayBuffer = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
   const { error } = await supabase.storage
     .from(bucket)
     .upload(fileName, arrayBuffer, { contentType: "image/jpeg" });
-  if (error) throw error;
-  return supabase.storage.from(bucket).getPublicUrl(fileName).data.publicUrl;
+  if (error) {
+    console.log("Storage upload error:", error.message);
+    throw error;
+  }
+  const publicUrl = supabase.storage.from(bucket).getPublicUrl(fileName)
+    .data.publicUrl;
+  console.log("Uploaded public URL:", publicUrl);
+  return publicUrl;
 }
 
 async function uploadFile(uri, bucket, fileName) {
@@ -147,5 +155,72 @@ export const onboardingService = {
       .single();
     if (error) throw error;
     return data;
+  },
+
+  // ─── Update function ───────────────────────────────────────────────────────────────
+
+  async updateCandidateProfile(updates) {
+    const user = await getUser();
+
+    // upload photo if it's a new local file
+    const photoUrl = updates.profilePhoto
+      ? await maybeUploadImage(updates.profilePhoto, "avatars", "public")
+      : undefined;
+
+    // upload resume if it's a new local file
+    const resumeUrl = updates.resume?.uri
+      ? await uploadFile(
+          updates.resume.uri,
+          "resumes",
+          `public/${Date.now()}_${updates.resume.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`,
+        )
+      : undefined;
+
+    // only update profiles table if relevant fields are passed
+    const profileUpdates = {
+      ...(updates.name !== undefined && { name: updates.name }),
+      ...(photoUrl !== undefined && { profile_photo: photoUrl }),
+      ...(updates.aboutMe !== undefined && { about_me: updates.aboutMe }),
+      updated_at: new Date(),
+    };
+
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .update(profileUpdates)
+      .eq("id", user.id);
+    if (profileError) throw profileError;
+
+    // only update candidate_profiles table if relevant fields are passed
+    const candidateUpdates = {
+      ...(updates.currentCity !== undefined && {
+        current_city: updates.currentCity,
+      }),
+      ...(updates.postalCode !== undefined && {
+        postal_code: updates.postalCode,
+      }),
+      ...(updates.desiredJobTitle !== undefined && {
+        desired_job_title: updates.desiredJobTitle,
+      }),
+      ...(updates.workExperience !== undefined && {
+        work_experience: updates.workExperience,
+      }),
+      ...(updates.education !== undefined && { education: updates.education }),
+      ...(updates.skills !== undefined && { skills: updates.skills }),
+      ...(updates.portfolioLinks !== undefined && {
+        portfolio_links: updates.portfolioLinks,
+      }),
+      ...(resumeUrl !== undefined && { resume: resumeUrl }),
+    };
+
+    // only call if there's something to update
+    if (Object.keys(candidateUpdates).length > 0) {
+      const { error: candidateError } = await supabase
+        .from("candidate_profiles")
+        .update(candidateUpdates)
+        .eq("id", user.id);
+      if (candidateError) throw candidateError;
+    }
+
+    return { success: true, photoUrl };
   },
 };
