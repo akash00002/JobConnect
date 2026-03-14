@@ -132,6 +132,7 @@ export const onboardingService = {
         company_website: formData.companyWebsite,
         company_logo: companyLogoUrl,
         cover_image: coverImageUrl,
+        headquarters: formData.headquarters,
         company_location: formData.headquarters,
         company_description: formData.companyDescription,
         linkedin_url: formData.linkedinUrl,
@@ -222,5 +223,83 @@ export const onboardingService = {
     }
 
     return { success: true, photoUrl };
+  },
+  async updateRecruiterProfile(updates) {
+    const user = await getUser();
+
+    const companyLogoUrl = updates.companyLogo
+      ? await maybeUploadImage(
+          updates.companyLogo,
+          "company-assets",
+          "companyLogo",
+        )
+      : undefined;
+
+    const coverImageUrl = updates.coverImage
+      ? await maybeUploadImage(
+          updates.coverImage,
+          "company-assets",
+          "companyCoverImage",
+        )
+      : undefined;
+
+    const photoUrl = updates.profilePhoto
+      ? await maybeUploadImage(updates.profilePhoto, "avatars", "public")
+      : undefined;
+
+    // only update profiles table if relevant fields are passed
+    const profileUpdates = {
+      ...(updates.name !== undefined && { name: updates.name }),
+      ...(photoUrl !== undefined && { profile_photo: photoUrl }),
+      ...(updates.jobTitle !== undefined && { job_title: updates.jobTitle }),
+      updated_at: new Date(),
+    };
+
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .update(profileUpdates)
+      .eq("id", user.id);
+    if (profileError) throw profileError;
+
+    // only update recruiter_profiles table if relevant fields are passed
+    const recruiterUpdates = {
+      ...(updates.companyName !== undefined && {
+        company_name: updates.companyName,
+      }),
+      ...(updates.companyWebsite !== undefined && {
+        company_website: updates.companyWebsite,
+      }),
+      ...(updates.industry !== undefined && { industry: updates.industry }),
+      ...(updates.companySize !== undefined && {
+        company_size: updates.companySize,
+      }),
+      ...(updates.companyDescription !== undefined && {
+        company_description: updates.companyDescription,
+      }),
+      ...(updates.headquarters !== undefined && {
+        headquarters: updates.headquarters,
+        company_location: updates.headquarters,
+      }),
+      ...(updates.linkedinUrl !== undefined && {
+        linkedin_url: updates.linkedinUrl,
+      }),
+      ...(updates.twitterHandle !== undefined && {
+        twitter_handle: updates.twitterHandle,
+      }),
+      ...(updates.jobTitle !== undefined && { job_title: updates.jobTitle }),
+      ...(updates.workPhone !== undefined && { work_phone: updates.workPhone }),
+      ...(companyLogoUrl !== undefined && { company_logo: companyLogoUrl }),
+      ...(coverImageUrl !== undefined && { cover_image: coverImageUrl }),
+    };
+
+    if (Object.keys(recruiterUpdates).length > 0) {
+      const { error: recruiterError } = await supabase
+        .from("recruiter_profiles")
+        .update(recruiterUpdates)
+        .eq("id", user.id);
+      if (recruiterError) throw recruiterError;
+    }
+
+    return { success: true, companyLogoUrl, coverImageUrl };
   },
 };

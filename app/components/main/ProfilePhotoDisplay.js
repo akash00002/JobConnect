@@ -1,8 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useState } from "react";
-import { Image, View } from "react-native";
-import { useOnboarding } from "../../context/OnboardingContext";
+import { ActivityIndicator, Image, View } from "react-native";
+import { useProfile } from "../../context/ProfileContext";
 import { onboardingService } from "../../services/OnboardingService";
 import { useAppTheme } from "../../utils/theme";
 import TouchableScale from "../common/TouchableScale";
@@ -13,13 +13,15 @@ export default function ProfilePhotoDisplay({
   variant = "candidate",
 }) {
   const { colors, isDark } = useAppTheme();
-  const { updateFormData } = useOnboarding();
+  const { profile } = useProfile();
   const [localPhoto, setLocalPhoto] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const isRecruiter = variant === "recruiter";
 
+  const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(profile?.name || "User")}&size=200&background=475569&color=fff&bold=true`;
+
   useEffect(() => {
-    if (photo) setLocalPhoto(photo); // ← update when parent passes photo
-    console.log("Profile photo URL:", photo);
+    if (photo) setLocalPhoto(photo);
   }, [photo]);
 
   async function handlePickImage() {
@@ -35,30 +37,28 @@ export default function ProfilePhotoDisplay({
 
     if (!result.canceled) {
       const uri = result.assets[0].uri;
-      console.log("1. Picked URI:", uri);
       setLocalPhoto(uri);
-
-      if (isRecruiter) {
-        updateFormData("companyLogo", uri);
-      } else {
-        updateFormData("profilePhoto", uri);
-      }
+      setUploading(true);
 
       try {
-        const result = await onboardingService.updateCandidateProfile({
-          profilePhoto: uri,
-        });
-        console.log("2. Upload result:", result);
+        if (isRecruiter) {
+          await onboardingService.updateRecruiterProfile({ profilePhoto: uri });
+        } else {
+          await onboardingService.updateCandidateProfile({ profilePhoto: uri });
+        }
+        onPhotoChange?.(uri);
       } catch (error) {
-        console.log("3. Upload FAILED:", error.message);
+        console.log("Upload failed:", error.message);
+      } finally {
+        setUploading(false);
       }
     }
   }
 
-  // ── Candidate Style ──
   return (
     <View className="items-center">
       <View className="relative">
+        {/* Photo Circle */}
         <View
           className="h-36 w-36 items-center justify-center rounded-full overflow-hidden"
           style={{
@@ -67,31 +67,53 @@ export default function ProfilePhotoDisplay({
             borderColor: colors.surface,
           }}
         >
-          {localPhoto ? ( // ← use localPhoto not photo
-            <Image
-              source={{ uri: localPhoto }}
-              style={{ width: "100%", height: "100%" }}
-              resizeMode="cover"
-            />
-          ) : (
-            <Ionicons name="person-sharp" size={50} color={colors.neutral400} />
-          )}
+          <Image
+            source={{ uri: localPhoto || avatarUrl }}
+            style={{ width: "100%", height: "100%" }}
+            resizeMode="cover"
+          />
         </View>
 
+        {/* Uploading overlay */}
+        {uploading && (
+          <View
+            style={{
+              position: "absolute",
+              width: 144,
+              height: 144,
+              borderRadius: 72,
+              backgroundColor: "rgba(0,0,0,0.45)",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 10,
+            }}
+          >
+            <ActivityIndicator size="large" color="#ffffff" />
+          </View>
+        )}
+
+        {/* Edit Button */}
         <TouchableScale
           onPress={handlePickImage}
+          disabled={uploading}
           className="h-12 w-10 items-center justify-center rounded-full absolute bottom-2 right-0"
           style={{
-            backgroundColor: colors.brandPrimary,
+            backgroundColor: uploading
+              ? colors.neutral400
+              : colors.brandPrimary,
             borderWidth: 2,
             borderColor: colors.surface,
           }}
         >
-          <Ionicons
-            name={localPhoto ? "pencil" : "camera"} // ← use localPhoto
-            size={18}
-            color={colors.surface}
-          />
+          {uploading ? (
+            <ActivityIndicator size="small" color={colors.surface} />
+          ) : (
+            <Ionicons
+              name={localPhoto ? "pencil" : "camera"}
+              size={18}
+              color={colors.surface}
+            />
+          )}
         </TouchableScale>
       </View>
     </View>

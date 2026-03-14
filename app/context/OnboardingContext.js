@@ -20,6 +20,7 @@ export function OnboardingProvider({ children }) {
     aboutMe: "",
 
     //Recruiter Step1
+    companyName: "",
     companyWebsite: "",
     industry: "",
     companySize: "",

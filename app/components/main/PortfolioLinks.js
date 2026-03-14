@@ -28,12 +28,19 @@ const LINKS_CONFIG = [
   },
 ];
 
-export default function PortfolioLinks({ portfolioLinks = [], onSave }) {
+export default function PortfolioLinks({
+  portfolioLinks = [],
+  onSave,
+  variant = "candidate",
+}) {
   const { colors, isDark } = useAppTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [linkedin, setLinkedin] = useState("");
   const [github, setGithub] = useState("");
   const [website, setWebsite] = useState("");
+
+  const accentColor =
+    variant === "recruiter" ? colors.brandSecondary : colors.brandPrimary;
 
   useEffect(() => {
     if (portfolioLinks) {
@@ -63,42 +70,23 @@ export default function PortfolioLinks({ portfolioLinks = [], onSave }) {
   const hasAnyLink = linkedin || github || website;
 
   return (
-    <View style={{ width: "100%" }}>
+    <View className="w-full">
       <View className="gap-1">
         {/* Header */}
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
+        <View className="flex-row items-center justify-between">
           <Text className="text-xl font-bold" style={{ color: colors.text }}>
             Links
           </Text>
+
           {isEditing ? (
             <TouchableOpacity
               onPress={handleSave}
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 4,
-                paddingHorizontal: 12,
-                paddingVertical: 8,
-                borderRadius: 18,
-              }}
+              className="flex-row items-center gap-1 px-3 py-2 rounded-[18px]"
             >
-              <Ionicons
-                name="checkmark-sharp"
-                size={20}
-                color={colors.brandPrimary}
-              />
+              <Ionicons name="checkmark-sharp" size={20} color={accentColor} />
               <Text
-                style={{
-                  color: colors.brandPrimary,
-                  fontSize: 14,
-                  fontWeight: "500",
-                }}
+                className="text-sm font-medium"
+                style={{ color: accentColor }}
               >
                 Save
               </Text>
@@ -106,26 +94,12 @@ export default function PortfolioLinks({ portfolioLinks = [], onSave }) {
           ) : (
             <TouchableOpacity
               onPress={() => setIsEditing(true)}
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 4,
-                paddingHorizontal: 12,
-                paddingVertical: 8,
-                borderRadius: 18,
-              }}
+              className="flex-row items-center gap-1 px-3 py-2 rounded-[18px]"
             >
-              <Ionicons
-                name="pencil-sharp"
-                size={20}
-                color={colors.brandPrimary}
-              />
+              <Ionicons name="pencil-sharp" size={20} color={accentColor} />
               <Text
-                style={{
-                  color: colors.brandPrimary,
-                  fontSize: 14,
-                  fontWeight: "500",
-                }}
+                className="text-sm font-medium"
+                style={{ color: accentColor }}
               >
                 Edit
               </Text>
@@ -134,15 +108,10 @@ export default function PortfolioLinks({ portfolioLinks = [], onSave }) {
         </View>
 
         {/* Box */}
-        <View
-          style={{
-            width: "100%",
-            padding: 16,
-          }}
-        >
+        <View className="w-full p-4">
           {isEditing ? (
             /* Edit mode - inputs */
-            <View style={{ gap: 8 }}>
+            <View className="gap-2">
               {links.map((link) => (
                 <TitleInput
                   key={link.key}
@@ -155,30 +124,19 @@ export default function PortfolioLinks({ portfolioLinks = [], onSave }) {
             </View>
           ) : (
             /* View mode - show links */
-            <View style={{ gap: 20 }}>
+            <View className="gap-5">
               {hasAnyLink ? (
                 links.map((link) =>
                   link.value ? (
                     <TouchableOpacity
                       key={link.key}
                       onPress={() => handleOpenLink(link.value)}
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        gap: 12,
-                      }}
+                      className="flex-row items-center gap-3"
                     >
                       <View
-                        style={{
-                          width: 36,
-                          height: 36,
-                          borderRadius: 8,
-                          alignItems: "center",
-                          justifyContent: "center",
-                          backgroundColor: isDark
-                            ? colors.neutral700
-                            : colors.neutral100,
-                        }}
+                        className={`w-9 h-9 rounded-lg items-center justify-center ${
+                          isDark ? "bg-neutral-700" : "bg-neutral-100"
+                        }`}
                       >
                         <Ionicons
                           name={link.icon}
@@ -186,27 +144,23 @@ export default function PortfolioLinks({ portfolioLinks = [], onSave }) {
                           color={link.color}
                         />
                       </View>
-                      <View style={{ flex: 1 }}>
+
+                      <View className="flex-1">
                         <Text
-                          style={{
-                            fontSize: 12,
-                            color: colors.textSecondary,
-                            marginBottom: 2,
-                          }}
+                          className="text-xs mb-0.5"
+                          style={{ color: colors.textSecondary }}
                         >
                           {link.label}
                         </Text>
                         <Text
-                          style={{
-                            fontSize: 14,
-                            fontWeight: "500",
-                            color: colors.brandPrimary,
-                          }}
+                          className="text-sm font-medium"
+                          style={{ color: accentColor }}
                           numberOfLines={1}
                         >
                           {link.value}
                         </Text>
                       </View>
+
                       <Ionicons
                         name="open-outline"
                         size={16}

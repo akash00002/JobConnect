@@ -7,6 +7,7 @@ import AuthButton from "../../../components/common/Button";
 import FormDivider from "../../../components/common/FormDivider";
 import LabelInput from "../../../components/common/LabelInput";
 import { useAuth } from "../../../context/AuthContext";
+import { useOnboarding } from "../../../context/OnboardingContext";
 import TermsCheckbox from "../../../features/terms/TermsCheckbox";
 import { useToast } from "../../../features/toast/ToastContext";
 import { useAuthForm } from "../../../hooks/useAuthForm";
@@ -16,8 +17,8 @@ export default function RecruiterSignUpScreen({ navigation }) {
   const { recruiterSignUp } = useAuth();
   const { showToast } = useToast();
   const { impact, success, error } = useHaptics();
+  const { updateFormData } = useOnboarding();
 
-  // Destructure what we need from your custom hook
   const {
     errors,
     setErrors,
@@ -31,7 +32,6 @@ export default function RecruiterSignUpScreen({ navigation }) {
     setIsLoading,
   } = useAuthForm();
 
-  // 1. CONSOLIDATED STATE: Group all fields into one object
   const [form, setForm] = useState({
     name: "",
     companyName: "",
@@ -41,7 +41,6 @@ export default function RecruiterSignUpScreen({ navigation }) {
     termsAccepted: false,
   });
 
-  // 2. GENERIC HANDLER: Updates state and clears errors dynamically
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) clearError(field);
@@ -59,7 +58,6 @@ export default function RecruiterSignUpScreen({ navigation }) {
       termsAccepted,
     } = form;
 
-    // Validation
     const validationErrors = {
       name: validateName(name),
       email: validateEmail(email),
@@ -68,7 +66,6 @@ export default function RecruiterSignUpScreen({ navigation }) {
       confirmPassword: validateConfirmPassword(password, confirmPassword),
     };
 
-    // Check if any errors exist
     if (Object.values(validationErrors).some((err) => err)) {
       setErrors(validationErrors);
       await error();
@@ -76,7 +73,7 @@ export default function RecruiterSignUpScreen({ navigation }) {
     }
 
     if (!termsAccepted) {
-      showToast("Please accept Terms & Conditions to continue");
+      showToast("Please accept Terms & Conditions to continue", "error"); // ✅ added "error"
       await error();
       return;
     }
@@ -92,14 +89,14 @@ export default function RecruiterSignUpScreen({ navigation }) {
 
       if (result.success) {
         navigation.replace("RecruiterLogin");
-        showToast("Account created! Please login to continue");
+        showToast("Account created! Please login to continue", "success"); // ✅ added "success"
         await success();
       } else {
-        showToast(result.error || "Failed to create account");
+        showToast(result.error || "Failed to create account", "error"); // ✅ added "error"
         await error();
       }
     } catch {
-      showToast("An unexpected error occurred");
+      showToast("An unexpected error occurred", "error"); // ✅ added "error"
       await error();
     } finally {
       setIsLoading(false);
@@ -117,7 +114,6 @@ export default function RecruiterSignUpScreen({ navigation }) {
           label="Full Name"
           iconName="person"
           autoCapitalize="words"
-          // 3. CLEANER PROPS
           value={form.name}
           onChangeText={(text) => handleChange("name", text)}
           autoCorrect={false}
@@ -130,7 +126,10 @@ export default function RecruiterSignUpScreen({ navigation }) {
           iconName="business"
           autoCapitalize="words"
           value={form.companyName}
-          onChangeText={(text) => handleChange("companyName", text)}
+          onChangeText={(text) => {
+            handleChange("companyName", text);
+            updateFormData("companyName", text);
+          }}
           autoCorrect={false}
           error={errors.companyName}
           editable={!isLoading}

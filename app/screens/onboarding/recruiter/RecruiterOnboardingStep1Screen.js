@@ -38,6 +38,7 @@ export default function RecruiterOnboardingStep1Screen({ navigation }) {
         iconName="link"
         variant="recruiter"
         value={companyWebsite}
+        autoCapitalize="none"
         onChangeText={(text) => updateFormData("companyWebsite", text)}
       />
 

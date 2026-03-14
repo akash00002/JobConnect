@@ -17,11 +17,11 @@ import ProfileName from "../../../components/main/ProfileName";
 import ProfilePhotoDisplay from "../../../components/main/ProfilePhotoDisplay";
 import Resume from "../../../components/main/Resume";
 import Skills from "../../../components/main/Skills";
-import { useProfile } from "../../../hooks/useProfile";
+import { useProfile } from "../../../context/ProfileContext";
 import { useAppTheme } from "../../../utils/theme";
 
 export default function CandidateProfileScreen({ navigation }) {
-  const { profile, loading, updateProfile, refetch } = useProfile();
+  const { profile, updateProfile, refetch } = useProfile();
   const { colors, isDark } = useAppTheme();
   const insets = useSafeAreaInsets();
 
@@ -33,7 +33,7 @@ export default function CandidateProfileScreen({ navigation }) {
   useFocusEffect(
     useCallback(() => {
       refetch();
-    }, []),
+    }, [refetch]),
   );
 
   return (

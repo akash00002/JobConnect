@@ -1,9 +1,11 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import CandidateHomeScreen from "../screens/main/candidate/CandidateHomeScreen";
-import CandidateProfileScreen from "../screens/main/candidate/CandidateProfileScreen";
-import { useAppTheme } from "../utils/theme";
+import RecruiterDashboardScreen from "../../screens/main/recruiter/RecruiterDashboardScreen";
+import RecruiterJobScreen from "../../screens/main/recruiter/RecruiterJobScreen";
+import RecruiterMessagesScreen from "../../screens/main/recruiter/RecruiterMessagesScreen";
+import RecruiterProfileScreen from "../../screens/main/recruiter/RecruiterProfileScreen";
+import { useAppTheme } from "../../utils/theme";
 
 const Tab = createBottomTabNavigator();
 
@@ -15,7 +17,7 @@ export default function BottomTabNavigator() {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.brandPrimary,
+        tabBarActiveTintColor: colors.brandSecondary,
         tabBarInactiveTintColor: colors.neutral400,
         tabBarStyle: {
           backgroundColor: colors.background,
@@ -34,19 +36,21 @@ export default function BottomTabNavigator() {
       }}
     >
       <Tab.Screen
-        name="Home"
-        component={CandidateHomeScreen}
+        name="RecruiterDashboardScreen"
+        component={RecruiterDashboardScreen}
         options={{
+          title: "Dashboard",
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="home" color={color} size={size} />
+            <MaterialIcons name="dashboard" color={color} size={size} />
           ),
         }}
       />
       <Tab.Screen
-        name="Jobs"
-        component={CandidateHomeScreen}
+        name="RecruiterJobScreen"
+        component={RecruiterJobScreen}
         options={{
+          title: "Jobs",
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="work" color={color} size={size} />
@@ -54,9 +58,10 @@ export default function BottomTabNavigator() {
         }}
       />
       <Tab.Screen
-        name="Messages"
-        component={CandidateHomeScreen}
+        name="RecruiterMessagesScreen"
+        component={RecruiterMessagesScreen}
         options={{
+          title: "Messages",
           headerShown: false,
           tabBarBadge: "", // red dot like in your HTML
           tabBarBadgeStyle: {
@@ -71,9 +76,10 @@ export default function BottomTabNavigator() {
         }}
       />
       <Tab.Screen
-        name="Profile"
-        component={CandidateProfileScreen}
+        name="RecruiterProfileScreen"
+        component={RecruiterProfileScreen}
         options={{
+          title: "Profile",
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="person" color={color} size={size} />

@@ -46,6 +46,7 @@ export default function RecruiterOnboardingStep3Screen({ navigation }) {
         onChangeText={(text) => updateFormData("workPhone", text)}
         iconName="call"
         variant="recruiter"
+        maxLength={10}
       />
       <View className="flex-row items-center ml-1 gap-2 bottom-2">
         <MaterialIcons name="lock" size={18} color={colors.neutral600} />
