@@ -41,10 +41,10 @@ export default function LoginScreen({ navigation }) {
     await impact();
 
     const emailError = validateEmail(email);
-    const passwordError = validatePassword(password);
+    // const passwordError = password;
 
-    if (emailError || passwordError) {
-      setErrors({ email: emailError, password: passwordError });
+    if (emailError) {
+      setErrors({ email: emailError });
       await error();
       return;
     }

@@ -36,10 +36,10 @@ export default function RecruiterLoginScreen({ navigation }) {
     await impact();
 
     const emailError = validateEmail(email);
-    const passwordError = validatePassword(password);
+    // const passwordError = validatePassword(password);
 
-    if (emailError || passwordError) {
-      setErrors({ email: emailError, password: passwordError });
+    if (emailError) {
+      setErrors({ email: emailError });
       await error();
       return;
     }

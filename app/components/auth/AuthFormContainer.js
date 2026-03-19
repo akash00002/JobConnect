@@ -1,5 +1,10 @@
-// components/auth/AuthFormContainer.js
-import { ScrollView, Text, View } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAppTheme } from "../../utils/theme";
 import Logo from "../common/Logo";
@@ -37,47 +42,54 @@ export default function AuthFormContainer({
   title,
   subtitle,
   children,
-  decorativeBlurs = "variant1", // default to variant1, can be false to disable
+  decorativeBlurs = "variant1",
 }) {
   const { colors } = useAppTheme();
+
   return (
     <View className="flex-1" style={{ backgroundColor: colors.background }}>
       {/* Decorative Background Blurs */}
       {decorativeBlurs && decorativeBlurVariants[decorativeBlurs]}
 
-      <ScrollView
-        contentContainerStyle={{
-          flexGrow: 1,
-          paddingHorizontal: 24,
-          paddingVertical: 32,
-          maxWidth: 448,
-          alignSelf: "center",
-          width: "100%",
-        }}
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+        className="flex-1"
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <SafeAreaView className="flex-1">
-          {/* Header Section */}
-          <View className="items-center mt-8 mb-10">
-            <Logo />
-            <Text
-              className="text-3xl font-bold mb-2 text-center"
-              style={{ color: colors.text }}
-            >
-              {title}
-            </Text>
-            <Text
-              className="text-base text-center max-w-[280px] leading-5"
-              style={{ color: colors.textSecondary }}
-            >
-              {subtitle}
-            </Text>
-          </View>
+        <ScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingHorizontal: 24,
+            paddingVertical: 32,
+            maxWidth: 448,
+            alignSelf: "center",
+            width: "100%",
+          }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <SafeAreaView className="flex-1">
+            {/* Header Section */}
+            <View className="items-center mt-8 mb-10">
+              <Logo />
+              <Text
+                className="text-3xl font-bold mb-2 text-center"
+                style={{ color: colors.text }}
+              >
+                {title}
+              </Text>
+              <Text
+                className="text-base text-center max-w-[280px] leading-5"
+                style={{ color: colors.textSecondary }}
+              >
+                {subtitle}
+              </Text>
+            </View>
 
-          {/* Form Content */}
-          {children}
-        </SafeAreaView>
-      </ScrollView>
+            {/* Form Content */}
+            {children}
+          </SafeAreaView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 }

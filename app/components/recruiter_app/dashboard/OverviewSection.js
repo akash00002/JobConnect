@@ -1,20 +1,24 @@
-import { ScrollView, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import StatCard from "./StatCard";
+import { ScrollView, Text, View } from "react-native";
+import { useSelector } from "react-redux";
 import { useAppTheme } from "../../../utils/theme";
+import StatCard from "./StatCard";
 
 export default function OverviewSection() {
   const { colors } = useAppTheme();
 
+  const activeCount = useSelector(
+    (state) => state.jobPosts.posts.filter((p) => p.status === "active").length,
+  );
+
   return (
     <View className="pt-5">
       <Text
-        className="px-4 text-base font-bold mb-3"
+        className="px-4 text-xl font-bold mb-3"
         style={{ color: colors.text, letterSpacing: -0.3 }}
       >
         Overview
       </Text>
-
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -22,27 +26,45 @@ export default function OverviewSection() {
       >
         <StatCard
           icon="briefcase-outline"
-          iconBgColor="#EEF3FD"
-          iconColor="#135bec"
-          value={12}
+          iconBgColor={colors.brandPrimaryBg}
+          iconColor={colors.brandPrimary}
+          value={activeCount || "-"}
           label="Active Jobs"
           badge={
-            <View className="flex-row items-center gap-0.5 px-2 py-1 rounded-full bg-green-50">
-              <Ionicons name="trending-up" size={12} color="#16a34a" />
-              <Text className="text-[10px] font-bold text-green-600">+2</Text>
+            <View
+              className="flex-row items-center gap-0.5 px-2 py-1 rounded-full"
+              style={{ backgroundColor: colors.successBg }}
+            >
+              <Ionicons
+                name="trending-up"
+                size={12}
+                color={colors.successIcon}
+              />
+              <Text
+                className="text-[10px] font-bold"
+                style={{ color: colors.successText }}
+              >
+                +2
+              </Text>
             </View>
           }
         />
 
         <StatCard
           icon="people-outline"
-          iconBgColor="#f5f3ff"
-          iconColor="#7c3aed"
+          iconBgColor={colors.purpleBg}
+          iconColor={colors.purpleIcon}
           value={48}
           label="Total Applicants"
           badge={
-            <View className="px-2 py-1 rounded-full bg-green-50">
-              <Text className="text-[10px] font-bold text-green-600">
+            <View
+              className="px-2 py-1 rounded-full"
+              style={{ backgroundColor: colors.successBg }}
+            >
+              <Text
+                className="text-[10px] font-bold"
+                style={{ color: colors.successText }}
+              >
                 +5 New
               </Text>
             </View>
@@ -51,8 +73,8 @@ export default function OverviewSection() {
 
         <StatCard
           icon="mail-outline"
-          iconBgColor="#fff7ed"
-          iconColor="#ea580c"
+          iconBgColor={colors.orangeBg}
+          iconColor={colors.orangeIcon}
           value={5}
           label="Unread Messages"
           badge={

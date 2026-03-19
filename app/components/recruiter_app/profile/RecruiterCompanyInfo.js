@@ -1,8 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import TitleInput from "../../common/TitleInput";
 import { useAppTheme } from "../../../utils/theme";
+import TitleInput from "../../common/TitleInput";
 
 function InfoRow({ icon, label, value }) {
   const { colors } = useAppTheme();
@@ -67,9 +67,6 @@ export default function RecruiterCompanyInfo({ recruiter, onSave }) {
         <TouchableOpacity
           onPress={isEditing ? handleSave : () => setIsEditing(true)}
           className="flex-row items-center gap-1 px-3 py-2 rounded-full"
-          style={{
-            backgroundColor: isDark ? colors.neutral700 : colors.neutral100,
-          }}
         >
           <Ionicons
             name={isEditing ? "checkmark-sharp" : "pencil-sharp"}

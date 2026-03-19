@@ -11,7 +11,7 @@ export default function ActionButton({
   primary,
   onPress,
 }) {
-  const { colors } = useAppTheme();
+  const { colors, isDark } = useAppTheme();
   const [pressed, setPressed] = useState(false);
 
   return (
@@ -19,26 +19,18 @@ export default function ActionButton({
       onPress={onPress}
       onPressIn={() => setPressed(true)}
       onPressOut={() => setPressed(false)}
+      className="flex-1 rounded-2xl py-5 px-3 items-center"
       style={{
-        flex: 1,
-        borderRadius: 16,
-        paddingVertical: 20,
-        paddingHorizontal: 12,
-        alignItems: "center",
         backgroundColor: colors.surface,
+        borderColor: isDark ? colors.neutral700 : colors.neutral100,
       }}
     >
       {/* Press effect only on icon */}
       <View
+        className="w-12 h-12 rounded-full items-center justify-center mb-2.5"
         style={{
-          width: 48,
-          height: 48,
-          borderRadius: 24,
-          alignItems: "center",
-          justifyContent: "center",
-          marginBottom: 10,
-          backgroundColor: primary ? colors.brandPrimary : iconBgColor,
-          shadowColor: primary ? colors.brandPrimary : "transparent",
+          backgroundColor: primary ? colors.brandSecondary : iconBgColor,
+          shadowColor: primary ? colors.brandSecondary : "transparent",
           shadowOpacity: primary ? 0.3 : 0,
           shadowRadius: 8,
           shadowOffset: { width: 0, height: 4 },
@@ -51,12 +43,8 @@ export default function ActionButton({
       </View>
 
       <Text
-        style={{
-          fontSize: 12,
-          fontWeight: "600",
-          textAlign: "center",
-          color: colors.text,
-        }}
+        className="text-xs font-semibold text-center"
+        style={{ color: colors.text }}
       >
         {label}
       </Text>

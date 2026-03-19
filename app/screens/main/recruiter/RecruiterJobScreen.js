@@ -1,48 +1,102 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, FlatList, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useDispatch, useSelector } from "react-redux";
+import JobCard from "../../../components/recruiter_app/jobs/JobCard";
+import JobsEmptyState from "../../../components/recruiter_app/jobs/JobsEmptyState";
+import JobsErrorState from "../../../components/recruiter_app/jobs/JobsErrorState";
+import JobsHeader from "../../../components/recruiter_app/jobs/JobsHeader";
+import JobsSearchBar from "../../../components/recruiter_app/jobs/JobsSearchBar";
+import JobsTabs from "../../../components/recruiter_app/jobs/JobsTabs";
+import { fetchJobPosts } from "../../../store/slices/jobPostSlice";
+import { useAppTheme } from "../../../utils/theme";
 
-export default function CandidateHomeScreen() {
+export default function JobsScreen({ navigation }) {
+  const { colors } = useAppTheme();
+  const [activeTab, setActiveTab] = useState("active");
+  const [search, setSearch] = useState("");
+
+  const dispatch = useDispatch();
+  const { posts, loading, error } = useSelector((state) => state.jobPosts);
+
+  useEffect(() => {
+    dispatch(fetchJobPosts());
+  }, [dispatch]);
+
+  const filtered = posts.filter((p) => {
+    const matchesTab = p.status === activeTab;
+    const matchesSearch =
+      !search ||
+      p.title?.toLowerCase().includes(search.toLowerCase()) ||
+      p.location?.toLowerCase().includes(search.toLowerCase()) ||
+      p.category?.toLowerCase().includes(search.toLowerCase());
+    return matchesTab && matchesSearch;
+  });
+
+  const counts = {
+    active: posts.filter((p) => p.status === "active").length,
+    closed: posts.filter((p) => p.status === "closed").length,
+  };
+
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll}>
-        {Array.from({ length: 20 }, (_, i) => (
-          <View key={i} style={styles.card}>
-            <Text style={styles.title}>Card {i + 1}</Text>
-            <Text style={styles.subtitle}>
-              This is a recruiter card to check scrolling
-            </Text>
-          </View>
-        ))}
-      </ScrollView>
-    </View>
+    <SafeAreaView
+      className="flex-1"
+      style={{ backgroundColor: colors.surface }}
+      edges={["top"]}
+    >
+      <JobsHeader onPostJob={() => navigation.navigate("PostJob")} />
+
+      <JobsSearchBar value={search} onChangeText={setSearch} />
+
+      <JobsTabs
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        counts={counts}
+      />
+
+      {loading && (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color={colors.brandSecondary} />
+        </View>
+      )}
+
+      {!loading && error && (
+        <JobsErrorState
+          error={error}
+          onRetry={() => dispatch(fetchJobPosts())}
+        />
+      )}
+
+      {!loading && !error && (
+        <FlatList
+          data={filtered}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
+          showsVerticalScrollIndicator={false}
+          style={{ backgroundColor: colors.background }}
+          keyboardShouldPersistTaps="handled"
+          renderItem={({ item }) => (
+            <JobCard
+              job={item}
+              onPress={() =>
+                navigation.navigate("JobDetailScreen", { job: item })
+              }
+              onEdit={() => navigation.navigate("PostJob", { job: item })}
+              onViewApplicants={() =>
+                navigation.navigate("Applicants", { jobId: item.id })
+              }
+              navigation={navigation}
+            />
+          )}
+          ListEmptyComponent={
+            <JobsEmptyState
+              search={search}
+              activeTab={activeTab}
+              onPostJob={() => navigation.navigate("PostJob")}
+            />
+          }
+        />
+      )}
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f6f6f8",
-  },
-  scroll: {
-    padding: 16,
-    gap: 12,
-  },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#0f172a",
-  },
-  subtitle: {
-    fontSize: 13,
-    color: "#94a3b8",
-    marginTop: 4,
-  },
-});

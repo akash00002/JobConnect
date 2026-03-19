@@ -1,19 +1,24 @@
-import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useDispatch } from "react-redux";
 import DashboardHeader from "../../../components/recruiter_app/dashboard/DashboardHeader";
-import FAB from "../../../components/recruiter_app/dashboard/Fab";
 import OverviewSection from "../../../components/recruiter_app/dashboard/OverviewSection";
 import QuickActionsSection from "../../../components/recruiter_app/dashboard/QuickActionsSection";
 import RecentActivitySection from "../../../components/recruiter_app/dashboard/RecentActivitySection";
 import { useProfile } from "../../../context/ProfileContext";
+import { fetchJobPosts } from "../../../store/slices/jobPostSlice";
 import { useAppTheme } from "../../../utils/theme";
 
 export default function RecruiterDashboard({ navigation }) {
   const { profile } = useProfile();
   const { colors, isDark } = useAppTheme();
   const [activeTab, setActiveTab] = useState("dashboard");
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchJobPosts());
+  }, [dispatch]);
 
   const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
     profile?.name || "Alex Johnson",
@@ -22,22 +27,19 @@ export default function RecruiterDashboard({ navigation }) {
   return (
     <SafeAreaView
       className="flex-1"
-      style={{ backgroundColor: colors.background }}
+      style={{ backgroundColor: colors.surface }}
       edges={["top"]}
     >
-      <StatusBar
-        style={isDark ? "light" : "dark"}
-        backgroundColor={colors.background}
-        translucent={false}
-      />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         className="flex-1"
+        style={{ backgroundColor: colors.background }}
       >
         <DashboardHeader
-          name={profile?.name || "Alex Johnson"}
+          name={profile?.name || "Loading name..."}
           avatarUrl={profile?.profile_photo || avatarUrl}
           onNotificationPress={() => {}}
+          navigation={navigation}
         />
         <ScrollView
           className="flex-1"
@@ -53,7 +55,7 @@ export default function RecruiterDashboard({ navigation }) {
           />
           <RecentActivitySection onViewAll={() => {}} />
         </ScrollView>
-        <FAB onPress={() => {}} />
+        {/* <FAB onPress={() => {}} /> */}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

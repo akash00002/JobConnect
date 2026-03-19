@@ -1,4 +1,3 @@
-// utils/theme.js
 import { useColorScheme } from "react-native";
 
 export const useAppTheme = () => {
@@ -11,10 +10,9 @@ export const useAppTheme = () => {
       background: isDark ? "#101622" : "#f6f6f8",
       surface: isDark ? "#1a2235" : "#ffffff",
 
-      // Text colors (derived from neutral)
+      // Text colors
       text: isDark ? "#ffffff" : "#0f172a",
       textSecondary: isDark ? "#94a3b8" : "#64748b",
-
       black: "#000000",
       white: "#ffffff",
 
@@ -36,6 +34,30 @@ export const useAppTheme = () => {
 
       // Error
       error: "#ef4444",
+
+      // ── Success ──
+      successBg: isDark ? "#14532d" : "#f0fdf4",
+      successText: isDark ? "#4ade80" : "#16a34a",
+      successIcon: isDark ? "#4ade80" : "#16a34a",
+
+      // ── Warning ──
+      warningBg: isDark ? "#450a0a" : "#fef2f2",
+      warningIcon: isDark ? "#f87171" : "#dc2626",
+
+      // ── Blue accent (Schedule button) ──
+      blueAccentBg: isDark ? "#1e3a5f" : "#dbeafe",
+      blueAccentText: isDark ? "#93c5fd" : "#1d4ed8",
+
+      // ── Purple accent (Review Apps button) ──
+      purpleAccentBg: isDark ? "#2e1065" : "#ede9fe",
+      purpleAccentText: isDark ? "#c4b5fd" : "#5b21b6",
+
+      // ── Brand icon backgrounds (stat cards) ──
+      brandPrimaryBg: isDark ? "#1e3a6e" : "#EEF3FD",
+      purpleBg: isDark ? "#2e1065" : "#f5f3ff",
+      purpleIcon: "#7c3aed",
+      orangeBg: isDark ? "#431407" : "#fff7ed",
+      orangeIcon: "#ea580c",
     },
     isDark,
     scheme,

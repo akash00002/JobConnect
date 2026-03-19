@@ -49,7 +49,7 @@ export default function BottomTabNavigator() {
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="work" color={color} size={size} />
+            <MaterialIcons name="bookmark" color={color} size={size} />
           ),
         }}
       />

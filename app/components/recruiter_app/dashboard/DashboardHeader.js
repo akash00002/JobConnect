@@ -6,19 +6,22 @@ export default function DashboardHeader({
   name,
   avatarUrl,
   onNotificationPress,
+  navigation,
 }) {
   const { colors, isDark } = useAppTheme();
 
   return (
     <View
-      className="flex-row items-center justify-between px-4 py-3 border-b"
+      className="flex-row items-center justify-between px-4 pb-3 border-b"
       style={{
         backgroundColor: colors.surface,
-        borderBottomColor: colors.neutral200,
+        borderBottomColor: isDark ? colors.neutral800 : colors.neutral100,
       }}
     >
       <View className="flex-row items-center gap-3">
-        <View>
+        <Pressable
+          onPress={() => navigation.navigate("RecruiterProfileScreen")}
+        >
           <Image
             source={{ uri: avatarUrl }}
             style={{
@@ -26,14 +29,17 @@ export default function DashboardHeader({
               height: 42,
               borderRadius: 21,
               borderWidth: 2,
-              borderColor: colors.neutral200,
+              borderColor: isDark ? colors.neutral700 : colors.neutral100,
             }}
           />
           <View
             className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500"
-            style={{ borderWidth: 2, borderColor: colors.surface }}
+            style={{
+              borderWidth: 2,
+              borderColor: isDark ? colors.neutral800 : colors.neutral100,
+            }}
           />
-        </View>
+        </Pressable>
 
         <View>
           <Text
@@ -56,7 +62,7 @@ export default function DashboardHeader({
         className="w-10 h-10 rounded-full items-center justify-center "
         style={({ pressed }) => ({
           backgroundColor: pressed ? colors.neutral100 : colors.surface,
-          borderColor: colors.neutral200,
+          borderColor: isDark ? colors.neutral700 : colors.neutral100,
         })}
       >
         <Ionicons name="notifications" size={22} color={colors.text} />

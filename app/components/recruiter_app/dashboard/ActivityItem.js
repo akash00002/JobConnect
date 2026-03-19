@@ -1,5 +1,5 @@
-import { Image, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Image, Text, View } from "react-native";
 import { useAppTheme } from "../../../utils/theme";
 
 export default function ActivityItem({
@@ -11,14 +11,17 @@ export default function ActivityItem({
   isLast,
   isWarning,
 }) {
-  const { colors } = useAppTheme();
+  const { colors, isDark } = useAppTheme();
 
   return (
     <View
       className="flex-row items-center gap-3 px-4 py-3.5"
       style={
         !isLast
-          ? { borderBottomWidth: 1, borderBottomColor: colors.neutral200 }
+          ? {
+              borderBottomWidth: 1,
+              borderBottomColor: isDark ? colors.neutral700 : colors.neutral100,
+            }
           : undefined
       }
     >
@@ -26,9 +29,13 @@ export default function ActivityItem({
         {isWarning ? (
           <View
             className="w-10 h-10 rounded-full items-center justify-center"
-            style={{ backgroundColor: "#fef2f2" }}
+            style={{ backgroundColor: colors.warningBg }}
           >
-            <Ionicons name="warning-outline" size={20} color="#dc2626" />
+            <Ionicons
+              name="warning-outline"
+              size={20}
+              color={colors.warningIcon}
+            />
           </View>
         ) : (
           <>

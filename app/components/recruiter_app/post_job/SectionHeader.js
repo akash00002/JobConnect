@@ -2,7 +2,7 @@ import { Text, View } from "react-native";
 import { useAppTheme } from "../../../utils/theme";
 
 export default function SectionHeader({ title, first }) {
-  const { colors } = useAppTheme();
+  const { colors, isDark } = useAppTheme();
 
   return (
     <>
@@ -10,7 +10,7 @@ export default function SectionHeader({ title, first }) {
         <View
           style={{
             height: 1,
-            backgroundColor: colors.neutral200,
+            backgroundColor: isDark ? colors.neutral700 : colors.neutral200,
             marginHorizontal: 0,
             marginBottom: 20,
           }}
@@ -22,7 +22,7 @@ export default function SectionHeader({ title, first }) {
           fontWeight: "700",
           letterSpacing: 1.2,
           textTransform: "uppercase",
-          color: colors.brandPrimary,
+          color: colors.brandSecondary,
           marginBottom: 16,
         }}
       >

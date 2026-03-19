@@ -1,5 +1,5 @@
-import { Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Text, View } from "react-native";
 import { useAppTheme } from "../../../utils/theme";
 
 export default function StatCard({
@@ -10,7 +10,7 @@ export default function StatCard({
   label,
   badge,
 }) {
-  const { colors } = useAppTheme();
+  const { colors, isDark } = useAppTheme();
 
   return (
     <View
@@ -19,7 +19,7 @@ export default function StatCard({
         minWidth: 152,
         backgroundColor: colors.surface,
         borderWidth: 1,
-        borderColor: colors.neutral200,
+        borderColor: isDark ? colors.neutral800 : colors.neutral100,
       }}
     >
       <View className="flex-row items-start justify-between mb-4">

@@ -3,13 +3,13 @@ import { useAppTheme } from "../../../utils/theme";
 import ActivityItem from "./ActivityItem";
 
 export default function RecentActivitySection({ onViewAll }) {
-  const { colors } = useAppTheme();
+  const { colors, isDark } = useAppTheme();
 
   return (
     <View className="px-4 mt-5">
       <View className="flex-row items-center justify-between mb-3">
         <Text
-          className="text-base font-bold"
+          className="text-xl font-bold"
           style={{ color: colors.text, letterSpacing: -0.3 }}
         >
           Recent Activity
@@ -29,7 +29,7 @@ export default function RecentActivitySection({ onViewAll }) {
         style={{
           backgroundColor: colors.surface,
           borderWidth: 1,
-          borderColor: colors.neutral200,
+          borderColor: isDark ? colors.neutral700 : colors.neutral100,
         }}
       >
         <ActivityItem
